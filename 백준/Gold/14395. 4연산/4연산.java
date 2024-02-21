@@ -3,79 +3,132 @@ import java.io.*;
 
 public class Main {
     
-   static long S, T;
+    static StringBuilder sb = new StringBuilder();
+    static int MAX_VALUE = 1000000000;
+    static int N, C;
+    
+    public static void main(String[] args) throws IOException {
+        input();
 
-    static Set<Long> valueSet = new HashSet<>();
+        if(N == C) sb.append("0");
+        else pro();
 
-    static String[] ops = new String[]{"*", "+", "-", "/"};
-    static class Node {
-        long value;
-        String operator;
-
-        public Node(long value, String operator) {
-            this.value = value;
-            this.operator = operator;
-        }
+        output();
+    }
+    private static void input() {
+        InputProcessor inputProcessor = new InputProcessor();
+        N = inputProcessor.nextInt();
+        C = inputProcessor.nextInt();
     }
 
-    static void input() throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-
-        S = Long.parseLong(st.nextToken());
-        T = Long.parseLong(st.nextToken());
-
-        br.close();
+    private static void pro() {
+        bfs(N);
     }
 
-    static void bfs(long start) {
-        Queue<Node> que = new LinkedList<>();
+    private static void bfs(long start) {
+        Deque<Node> que = new ArrayDeque<>();
         que.add(new Node(start, ""));
-        valueSet.add(start);
 
-        boolean find = false;
+        Set<Long> unique = new HashSet<>();
+        unique.add(start);
+
+        String result = "-1";
         while(!que.isEmpty()) {
-            Node x = que.poll();
-            if(x.value == T) {
-                find = true;
-                System.out.println(x.operator);
+            Node node = que.poll();
+            if(node.s == C) {
+                result = node.operator;
                 break;
             }
 
             for(int i = 0; i < 4; i++) {
-                if(i == 3 && x.value == 0) continue; // / by zero error
+                if(i == 3 && node.s == 0) continue;
 
-                long v = cal(x.value, i);
-                if(!valueSet.contains(v)) {
-                    valueSet.add(v);
-                    que.add(new Node(v, x.operator + ops[i]));
+                long value = cal(i, node.s);
+                if(1 <= value && value <= MAX_VALUE && !unique.contains(value)) {
+                    unique.add(value);
+                    que.add(new Node(value, node.operator + operator(i)));
                 }
             }
         }
 
-        if(!find) System.out.println(-1);
+        sb.append(result);
     }
 
-    static long cal(long v, int op) {
+    private static String operator(int i) {
+        if(i == 0) return "*";
+        else if(i == 1) return "+";
+        else if(i == 2) return "-";
+        else return "/";
+    }
+    private static long cal(int operator, long s) {
         long result = 0L;
-        switch (op) {
-            case 0 : result = v * v; break;
-            case 1 : result = v + v; break;
-            case 2 : result = 0L; break;
-            case 3 : result = 1; break;
+        if(operator == 0) { // *
+            result = s * s;
+        } else if(operator == 1) { // +
+            result = s + s;
+        } else if(operator == 2) { // -
+            result = 0L;
+        } else if(operator == 3 && s != 0L) { // /
+            result = 1L;
         }
-
         return result;
     }
 
-    static void pro() {
-        if(S == T) System.out.println(0);
-        else bfs(S);
+    private static class Node {
+        long s;
+        String operator;
+
+        public Node(long s, String operator) {
+            this.s = s;
+            this.operator = operator;
+        }
     }
 
-    public static void main(String[] args) throws Exception {
-        input();
-        pro();
+    private static void output() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
+    }
+
+    private static class InputProcessor {
+        BufferedReader br;
+        StringTokenizer st;
+
+        public InputProcessor() {
+            this.br = new BufferedReader(new InputStreamReader(System.in));
+        }
+
+        public String next() {
+            while(st == null || !st.hasMoreElements()) {
+                try {
+                    st = new StringTokenizer(br.readLine());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return st.nextToken();
+        }
+
+        public String nextLine() {
+            String input = "";
+
+            try {
+                input = br.readLine();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            return input;
+        }
+
+        public int nextInt() {
+            return Integer.parseInt(next());
+        }
+
+        public long nextLong() {
+            return Long.parseLong(next());
+        }
     }
     
 }
