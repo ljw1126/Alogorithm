@@ -24,7 +24,6 @@ public class Main {
 
         Material material = MATERIAL_ARR[N];
         Set<Integer> keys = material.keySet();
-        
         for(int key : keys) {
             sb.append(String.format(RESULT_FORMAT, key, material.supply.get(key)));
         }
@@ -45,14 +44,13 @@ public class Main {
             int cur = que.poll();
 
             for(Node next : ADJ[cur]) {
-                IN_DEGREE[next.to] -= 1;
-
                 if(basic.contains(cur)) {
                     MATERIAL_ARR[next.to].supply(cur, next.amount);
                 } else {
                     MATERIAL_ARR[next.to].supply(MATERIAL_ARR[cur], next.amount);
                 }
-
+                
+                IN_DEGREE[next.to] -= 1;
                 if(IN_DEGREE[next.to] == 0) {
                     que.add(next.to);
                 }
@@ -67,10 +65,6 @@ public class Main {
             supply = new TreeMap<>();
         }
 
-        public void supply(int no, int amount) {
-            supply.put(no, supply.getOrDefault(no, 0) + amount);
-        }
-
         public Set<Integer> keySet() {
             return supply.keySet();
         }
@@ -78,6 +72,11 @@ public class Main {
         public int get(int key) {
             return supply.get(key);
         }
+        
+        public void supply(int no, int amount) {
+            supply.put(no, supply.getOrDefault(no, 0) + amount);
+        }
+
         public void supply(Material material, int amount) {
             Set<Integer> keys = material.keySet();
             for(int key : keys) {
