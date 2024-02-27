@@ -7,16 +7,15 @@ public class Main {
     static InputProcessor inputProcessor = new InputProcessor();
     static String NEW_LINE = System.lineSeparator();
     static int MOD = 1000000009;
-    static int T, N;
-    static long[] DP = new long[1000001];
+    static int N;
+    static long[] DP;
 
     public static void main(String[] args) throws IOException {
         preprocess();
 
-        T = inputProcessor.nextInt();
+        int T = inputProcessor.nextInt();
         while(T > 0) {
             N = inputProcessor.nextInt();
-
             sb.append(DP[N]).append(NEW_LINE);
 
             T -= 1;
@@ -26,13 +25,15 @@ public class Main {
     }
 
     private static void preprocess() {
+        DP = new long[1000001];
         // 초기화
         DP[1] = 1;
         DP[2] = 2;
         DP[3] = 4;
 
         for(int i = 4; i <= 1000000; i++) {
-            DP[i] = (DP[i - 1] + DP[i - 2] + DP[i - 3]) % MOD;
+            DP[i] = DP[i - 1] + DP[i - 2] + DP[i - 3];
+            DP[i] %= MOD;
         }
     }
 
