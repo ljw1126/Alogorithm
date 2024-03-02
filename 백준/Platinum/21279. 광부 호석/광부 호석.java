@@ -7,7 +7,7 @@ public class Main {
 
     static List<Stone>[] X, Y;
 
-    static long CNT;
+    static int CNT;
 
     static long SUM;
 
@@ -69,22 +69,24 @@ public class Main {
 
     static void pro() {
         long ans = 0L;
-        int W = 0;
-        int H = 100000;
+        int W = -1;
+        int H = 100001;
 
-        CNT = 0L;
+        CNT = 0;
         SUM = 0L;
 
-        while(W <= 100000 && H >= 0) {
-            if(CNT <= C) {
-                add(W, H);
-                W += 1;
-            } else {
+        while(W < 100000 && H > 0) {
+            if(CNT > C) {
+                H -= 1; 
                 del(W, H);
-                H -= 1;
+            } else {
+                W += 1;
+                add(W, H);
             }
 
-            if(CNT <= C && ans < SUM) ans = SUM;
+            if(CNT <= C) {
+                ans = Math.max(ans, SUM);
+            }
         }
 
         System.out.println(ans);
