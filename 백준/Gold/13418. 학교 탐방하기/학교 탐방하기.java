@@ -3,10 +3,11 @@ import java.io.*;
 
 public class Main {
     
-    static StringBuilder sb = new StringBuilder();
+     static StringBuilder sb = new StringBuilder();
     static InputProcessor inputProcessor = new InputProcessor();
     static int N, M;
-    static List<Node>[] ADJ;
+    static List<Node> EDGES;
+    static int[] PARENT;
 
     public static void main(String[] args) throws IOException {
         input();
@@ -17,11 +18,13 @@ public class Main {
     }
 
     private static class Node {
-        int idx;
+        int from;
+        int to;
         int c; // 오르막길 : 0, 내리막길 : 1
 
-        public Node(int idx, int c) {
-            this.idx = idx;
+        public Node(int from, int to, int c) {
+            this.from = from;
+            this.to = to;
             this.c = c;
         }
     }
@@ -30,63 +33,69 @@ public class Main {
         N = inputProcessor.nextInt(); // 건물의 개수(노드)
         M = inputProcessor.nextInt(); // 도로의 개수(간선)
 
-        ADJ = new ArrayList[N + 1];
-        for(int i = 0; i <= N; i++)  {
-            ADJ[i] = new ArrayList<>();
-        }
-
+        EDGES = new ArrayList<>();
         for(int i = 1; i <= M + 1; i++) {
             int a = inputProcessor.nextInt();
             int b = inputProcessor.nextInt();
             int c = inputProcessor.nextInt();
 
-            ADJ[a].add(new Node(b, c));
-            ADJ[b].add(new Node(a, c));
+            EDGES.add(new Node(a, b, c));
         }
+
+        PARENT = new int[N + 1];
     }
 
     private static void pro() {
-        // best
-        int best = mst(0, (o1, o2) -> o2.c - o1.c);
+        Collections.sort(EDGES, (o1, o2) -> o2.c - o1.c); // 내리막길(1) 순으로
+        int best = kruskal();
 
-        // worst (1000^2)
-        int worst = mst(0, Comparator.comparingInt(o -> o.c));
+        Collections.sort(EDGES, Comparator.comparingInt(o -> o.c));
+        int worst = kruskal();
 
-        double result = pow(worst) - pow(best);
-        sb.append((int) result);
+        int result = (int)(pow(worst) - pow(best));
+        sb.append(result);
     }
 
     private static double pow(int value) {
         return Math.pow(value, 2);
     }
 
-    private static int mst(int start, Comparator<Node> comparator) {
-        Queue<Node> que = new PriorityQueue<>(comparator);
-        que.add(new Node(start, -1));
+    private static int kruskal() {
+        for(int i = 0; i <= N; i++) {
+            PARENT[i] = i;
+        }
 
-        boolean[] visit = new boolean[N + 1];
+        int count = 0;
+        for(Node next : EDGES) {
+            if(unionFind(next.from, next.to)) {
+                union(next.from, next.to);
 
-        int count = 0; //오른막길 0, 내리막길 1
-        while(!que.isEmpty()) {
-            Node cur = que.poll();
-
-            if(visit[cur.idx]) continue;
-
-            visit[cur.idx] = true;
-            if(cur.c == 0) {
-                count += 1;
-            }
-
-            for(Node next : ADJ[cur.idx]) {
-                if(visit[next.idx]) continue;
-
-                que.add(next);
+                if(next.c == 0) { 
+                    count += 1;
+                }
             }
         }
 
         return count;
     }
 
+    private static void union(int from, int to) {
+        int parentA = findParent(from);
+        int parentB = findParent(to);
+
+        if(parentA < parentB) PARENT[parentB] = parentA;
+        else PARENT[parentA] = parentB;
+    }
+
+    private static boolean unionFind(int a, int b) {
+        return findParent(a) != findParent(b);
+    }
+
+    private static int findParent(int node) {
+        if(PARENT[node] == node) return node;
+
+        return PARENT[node] = findParent(PARENT[node]);
+    }
 
     private static void output() throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
