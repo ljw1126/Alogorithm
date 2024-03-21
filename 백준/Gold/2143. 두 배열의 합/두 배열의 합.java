@@ -53,59 +53,41 @@ public class Main {
         Arrays.sort(subArrayA, 1, subArrayA.length);
         Arrays.sort(subArrayB, 1, subArrayB.length);
 
-        long count = 0; 
+
+        long count = 0;
+
         int L = 1;
-        while(L <= subArrayA.length - 1) {
-            long operand = subArrayA[L];
-            long target = T - operand;
+        int R = subArrayB.length - 1;
+        while(L < subArrayA.length && R > 0) {
+            long sum = subArrayA[L] + subArrayB[R];
 
-            int lowerBoundA = lowerBound(subArrayA, operand, 1, subArrayA.length);
-            int upperBoundA = upperBound(subArrayA, operand, 1, subArrayA.length);
-            int cntA = upperBoundA - lowerBoundA;
+            if (sum == T) {
+                int toL = L;
+                int fromR = R;
 
-            int lowerBoundB = lowerBound(subArrayB, target, 1, subArrayB.length);
-            int upperBoundB = upperBound(subArrayB, target, 1, subArrayB.length);
-            int cntB = upperBoundB - lowerBoundB;
+                while(toL <= subArrayA.length - 1 && subArrayA[L] == subArrayA[toL]) {
+                    toL += 1;
+                }
 
-            count += ((long)cntA * cntB);
-            L = upperBoundA;
+                while(fromR > 0 && subArrayB[R] == subArrayB[fromR]) {
+                    fromR -= 1;
+                }
+
+                count += ((long)(toL - L) * (R - fromR));
+                L = toL;
+                R = fromR;
+                continue;
+            }
+
+            if (sum > T) {
+                R -= 1;
+            } else {
+                L += 1;
+            }
         }
+
 
         sb.append(count);
-    }
-
-    private static int lowerBound(long[] arr, long target, int start, int end) {
-        int L = start;
-        int R = end;
-
-        while(L < R) {
-            int mid = (L + R) / 2;
-
-            if(arr[mid] >= target) {
-                R = mid;
-            } else {
-                L = mid + 1;
-            }
-        }
-
-        return R;
-    }
-
-    private static int upperBound(long[] arr, long target, int start, int end) {
-        int L = start;
-        int R = end;
-
-        while(L < R) {
-            int mid = (L + R) / 2;
-
-            if(arr[mid] > target) {
-                R = mid;
-            } else {
-                L = mid + 1;
-            }
-        }
-
-        return R;
     }
 
     private static void output() throws IOException {
