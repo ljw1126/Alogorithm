@@ -2,119 +2,147 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-     static StringBuilder sb = new StringBuilder();
-    static int[][] DIR = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-    static int[][] MATRIX;
-    static boolean[][] VISIT;
-    static int N, M, RESULT, BLANK_COUNT;
-    static int MAX_WALL_COUNT = 3;
+     private static StringBuilder sb = new StringBuilder();
+    private static InputProcessor inputProcessor = new InputProcessor();
 
-    static int[][] BLANKS;
+    private static int[][] DIR = {
+            {0, 1},
+            {0, -1},
+            {1, 0},
+            {-1, 0}
+    };
+    private static List<Virus> virusList = new ArrayList<>();
+    private static List<Blank> blankList = new ArrayList<>();
+    private static int BLANK_NUMBER = 0;
+    private static int VIRUSE_NUMBER = 2;
+    private static int MAX_WALL = 3;
+    private static int[][] BOARD;
+    private static int N, M;
+    private static int RESULT = 0;
+
 
     public static void main(String[] args) throws IOException {
         input();
-
         pro();
-
         output();
     }
 
-    private static void pro() {
-        checkBlank();
-        makeWall(0, 0);
+    private static void input() {
+        N = inputProcessor.nextInt(); // 세로
+        M = inputProcessor.nextInt(); // 가로
 
+        BOARD = new int[N + 1][M + 1];
+
+        for (int i = 1; i <= N; i++) {
+            for (int j = 1; j <= M; j++) {
+                int value = inputProcessor.nextInt();
+                BOARD[i][j] = value;
+
+                if (value == BLANK_NUMBER) {
+                    blankList.add(new Blank(i, j));
+                } else if (value == VIRUSE_NUMBER) {
+                    virusList.add(new Virus(i, j));
+                }
+            }
+        }
+    }
+
+    private static class Virus {
+        private int x;
+        private int y;
+
+        public Virus(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+    }
+
+    private static class Blank {
+        private int x;
+        private int y;
+
+        public Blank(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public int getX() {
+            return x;
+        }
+
+        public int getY() {
+            return y;
+        }
+    }
+
+    private static void pro() {
+        createWall(0, 0);
         sb.append(RESULT);
     }
 
-    private static void checkBlank() {
-        BLANKS = new int[65][2];
-
-        for(int i = 1; i <= N; i++) {
-            for(int j = 1; j <= M; j++) {
-                if(MATRIX[i][j] == 0) {
-                    BLANKS[BLANK_COUNT][0] = i;
-                    BLANKS[BLANK_COUNT][1] = j;
-                    BLANK_COUNT += 1;
-                }
-            }
-        }
-    }
-
-    private static void makeWall(int cnt, int idx) {
-        if(cnt == MAX_WALL_COUNT) {
-            spreadVirus();
+    private static void createWall(int count, int idx) {
+        if (count == MAX_WALL) {
+            boolean[][] spreadVirus = spreadVirus();
+            int cnt = countSafetyArea(spreadVirus);
+            RESULT = Math.max(cnt, RESULT);
             return;
         }
 
-        if(idx >= BLANK_COUNT) return;
+        if (idx >= blankList.size()) return;
 
-        // 벽을 세운다
-        MATRIX[BLANKS[idx][0]][BLANKS[idx][1]] = 1;
-        makeWall(cnt + 1, idx + 1);
+        Blank blank = blankList.get(idx);
+        BOARD[blank.x][blank.y] = 1;
+        createWall(count + 1, idx + 1);
 
-        // 벽을 세우지 않는다
-        MATRIX[BLANKS[idx][0]][BLANKS[idx][1]] = 0;
-        makeWall(cnt, idx + 1);
+        BOARD[blank.x][blank.y] = 0;
+        createWall(count, idx + 1);
     }
 
-    private static void spreadVirus() {
-        Deque<Integer> que = new ArrayDeque<>();
 
-        for(int i = 1; i <= N; i++) {
-            for(int j = 1; j <= M; j++) {
-                VISIT[i][j] = false;
-                if(MATRIX[i][j] == 2) {
-                    que.add(i);
-                    que.add(j);
-                    VISIT[i][j] = true;
-                }
-            }
+    private static boolean[][] spreadVirus() {
+        boolean[][] visited = new boolean[N + 1][M + 1];
+        for (Virus virus : virusList) {
+            dfs(virus.x, virus.y, visited);
         }
+        return visited;
+    }
 
-        while(!que.isEmpty()) {
-            int x = que.poll();
-            int y = que.poll();
+    private static void dfs(int x, int y, boolean[][] visited) {
+        if (visited[x][y]) return;
 
-            for(int i = 0; i < 4; i++) {
-                int nx = x + DIR[i][0];
-                int ny = y + DIR[i][1];
+        visited[x][y] = true;
 
-                if(nx < 1 || ny < 1 || nx > N || ny > M) continue;
-                if(VISIT[nx][ny]) continue;
-                if(MATRIX[nx][ny] != 0) continue;
+        for (int i = 0; i < 4; i++) {
+            int dx = x + DIR[i][0];
+            int dy = y + DIR[i][1];
 
-                que.add(nx);
-                que.add(ny);
-                VISIT[nx][ny] = true;
-            }
+            if (dx < 1 || dx > N || dy < 1 || dy > M) continue;
+            if (visited[dx][dy]) continue;
+            if (BOARD[dx][dy] != BLANK_NUMBER) continue;
+
+            dfs(dx, dy, visited);
         }
+    }
 
+    private static int countSafetyArea(boolean[][] spreadVirus) {
         int count = 0;
-        for(int i = 1; i <= N; i++) {
-            for(int j = 1; j <= M; j++) {
-                if(MATRIX[i][j] == 0 && !VISIT[i][j]) { // 바이러스가 방문하지 않은 경우
+        for (int i = 1; i <= N; i++) {
+            for (int j = 1; j <= M; j++) {
+                if (BOARD[i][j] == 0 && !spreadVirus[i][j]) {
                     count += 1;
                 }
             }
         }
 
-        RESULT = Math.max(RESULT, count);
-    }
-
-    private static void input() {
-        InputProcessor inputProcessor = new InputProcessor();
-        N = inputProcessor.nextInt();
-        M = inputProcessor.nextInt();
-
-        MATRIX = new int[N + 1][M + 1];
-        for(int i = 1; i <= N; i++) {
-            for(int j = 1; j <= M; j++) {
-                MATRIX[i][j] = inputProcessor.nextInt();
-            }
-        }
-
-        VISIT = new boolean[N + 1][M + 1];
+        return count;
     }
 
     private static void output() throws IOException {
@@ -124,7 +152,7 @@ public class Main {
         bw.close();
     }
 
-    public static class InputProcessor {
+    private static class InputProcessor {
         BufferedReader br;
         StringTokenizer st;
 
@@ -133,11 +161,11 @@ public class Main {
         }
 
         public String next() {
-            while(st == null || !st.hasMoreElements()) {
+            while (st == null || !st.hasMoreElements()) {
                 try {
                     st = new StringTokenizer(br.readLine());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
 
@@ -146,12 +174,12 @@ public class Main {
 
         public String nextLine() {
             String input = "";
-
             try {
                 input = br.readLine();
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
+
             return input;
         }
 
@@ -162,6 +190,7 @@ public class Main {
         public long nextLong() {
             return Long.parseLong(next());
         }
+
     }
     
 }
