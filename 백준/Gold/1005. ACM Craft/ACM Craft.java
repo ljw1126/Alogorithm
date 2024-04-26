@@ -2,7 +2,6 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    // 최대 1,000 노드가 각각 100,000 걸리면 10^8
     static StringBuilder sb = new StringBuilder();
     static InputProcessor inputProcessor = new InputProcessor();
     static int T, N, K, X, Y, W;
@@ -51,32 +50,54 @@ public class Main {
         sb.append(result).append("\n");
     }
 
-    private static int bfs() {
-        Deque<Integer> que = new ArrayDeque<>();
+    private static class Building implements Comparable<Building>{
+        int idx;
+        int time;
 
-        int[] tDone = new int[N + 1];
+        public Building(int idx, int time) {
+            this.idx = idx;
+            this.time = time;
+        }
+
+        @Override
+        public int compareTo(Building o) {
+            if(o.time > this.time) {
+                return -1;
+            } else if(o.time < this.time) {
+                return 1;
+            } else {
+                return 0;
+            }
+        }
+    }
+
+    private static int bfs() {
+        Queue<Building> que = new PriorityQueue<>();
+
         for(int i = 1; i <= N; i++) {
             if(IN_DEGREE[i] == 0) {
-                que.add(i);
-                tDone[i] = TIME[i];
+                que.add(new Building(i, TIME[i]));
             }
         }
 
+        int result = 0;
         while(!que.isEmpty()) {
-            int x = que.poll();
+            Building building = que.poll();
+            if(building.idx == W) {
+                result = Math.max(result, building.time);
+                continue;
+            }
 
-            for(int y : ADJ[x]) {
-                IN_DEGREE[y] -= 1;
+            for(int next : ADJ[building.idx]) {
+                IN_DEGREE[next] -= 1;
 
-                if(IN_DEGREE[y] == 0) {
-                    que.add(y);
+                if(IN_DEGREE[next] == 0) {
+                    que.add(new Building(next, building.time + TIME[next]));
                 }
-
-                tDone[y] = Math.max(tDone[y], tDone[x] + TIME[y]);
             }
         }
 
-        return tDone[W];
+        return result;
     }
 
 
