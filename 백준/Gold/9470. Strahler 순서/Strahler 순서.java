@@ -3,102 +3,119 @@ import java.io.*;
 
 public class Main {
     
-   static StringBuilder sb = new StringBuilder();
-    static InputProcessor inputProcessor = new InputProcessor();
-    static String RESULT_FORMAT = "%d %d\n";
-    static int T, K, M, P;
-    static int[] IN_DEGREE;
-    static List<Integer>[] ADJ;
+  private static StringBuilder sb = new StringBuilder();
+    private static InputProcessor inputProcessor = new InputProcessor();
 
-    static Node[] NODES;
+    private static int T, K, M, P;
+    private static List<List<Integer>> ADJ;
+    private static int[] IN_DEGREE;
+    private static Node[] ORDERS;
 
     public static void main(String[] args) throws IOException {
-        T = inputProcessor.nextInt();
-        for(int i = 1; i <= T; i++) {
-            input();
-
-            pro();
-
-            sb.append(String.format(RESULT_FORMAT, K, NODES[M].order));
-        }
-
+        input();
         output();
     }
 
-    private static class Node {
-        int order;
-        int count;
+    private static void input() {
+        T = inputProcessor.nextInt();
+        while (T > 0) {
+            T -= 1;
 
-        public Node(int order, int count) {
-            this.order = order;
-            this.count = count;
-        }
+            K = inputProcessor.nextInt(); // 테스트 케이스 번호
+            M = inputProcessor.nextInt(); // 노드 수, 항상 바다와 만나는 노드이다
+            P = inputProcessor.nextInt(); // 간선의 수
 
-        public boolean isSame(Node node) {
-            return this.order == node.order;
-        }
+            ORDERS = new Node[M + 1];
+            IN_DEGREE = new int[M + 1];
+            ADJ = new ArrayList<>();
+            for (int i = 0; i <= M; i++) {
+                ADJ.add(new ArrayList<>());
+            }
 
-        public boolean greatThan(Node node) {
-            return this.order > node.order;
-        }
+            for (int i = 1; i <= P; i++) {
+                int from = inputProcessor.nextInt();
+                int to = inputProcessor.nextInt();
 
-        public void countUp() {
-            this.count += 1;
+                ADJ.get(from).add(to); // 부모 -> 자식
+                IN_DEGREE[to] += 1; // 들어오는 간선
+            }
+
+            pro();
         }
     }
 
     private static void pro() {
         Deque<Integer> que = new ArrayDeque<>();
 
-        for(int i = 1; i <= M; i++) {
-            if(IN_DEGREE[i] == 0) {
+        for (int i = 1; i <= M; i++) {
+            if (IN_DEGREE[i] == 0) {
                 que.add(i);
-                NODES[i] = new Node(1, 0);
+                ORDERS[i] = new Node(1, 1);
             }
         }
 
-        while(!que.isEmpty()) {
+        while (!que.isEmpty()) {
             int cur = que.poll();
 
-            for(int next : ADJ[cur]) {
+            for (int next : ADJ.get(cur)) {
                 IN_DEGREE[next] -= 1;
 
-                if(NODES[next] == null || NODES[cur].greatThan(NODES[next])) {
-                    NODES[next] = new Node(NODES[cur].order, 1);
-                } else if(NODES[cur].isSame(NODES[next])) {
-                    NODES[next].countUp();
+                if (ORDERS[next] == null || ORDERS[next].isGraterThan(ORDERS[cur])) {
+                    ORDERS[next] = ORDERS[cur];
+                } else if (ORDERS[next].equals(ORDERS[cur])) {
+                    ORDERS[next].countUp();
                 }
 
-                if(IN_DEGREE[next] == 0) {
-                    if(NODES[next].count >= 2) {
-                        NODES[next] = new Node(NODES[next].order + 1, 1);
+                if (IN_DEGREE[next] == 0) {
+                    if (ORDERS[next].overTwo()) {
+                        ORDERS[next] = ORDERS[next].orderUp();
                     }
 
                     que.add(next);
                 }
             }
         }
+
+        sb.append(K).append(" ").append(ORDERS[M].order).append("\n");
     }
-    private static void input() {
-        K = inputProcessor.nextInt(); // 테스트 케이스 번호
-        M = inputProcessor.nextInt(); // 노드의 수(바다와 만나는 노드, 결과값)
-        P = inputProcessor.nextInt(); // 간선의 수
 
-        ADJ = new ArrayList[M + 1];
-        for(int i = 1; i <= M; i++) {
-            ADJ[i] = new ArrayList<>();
+    private static class Node {
+        private int order;
+        private int count;
+
+        public Node(int order, int count) {
+            this.order = order;
+            this.count = count;
         }
 
-        IN_DEGREE = new int[M + 1];
-        for(int i = 1; i <= P; i++) {
-            int a = inputProcessor.nextInt();
-            int b = inputProcessor.nextInt();
-
-            ADJ[a].add(b);
-            IN_DEGREE[b] += 1;
+        public boolean isGraterThan(Node order) {
+            return this.order < order.order;
         }
 
-        NODES = new Node[M + 1];
+        public void countUp() {
+            this.count += 1;
+        }
+
+        public Node orderUp() {
+            return new Node(this.order + 1, 1);
+        }
+
+        public boolean overTwo() {
+            return this.count >= 2;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) return true;
+            if (other == null || getClass() != other.getClass()) return false;
+            Node node = (Node) other;
+            return order == node.order && count == node.count;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(order, count);
+        }
     }
 
     private static void output() throws IOException {
@@ -109,15 +126,15 @@ public class Main {
     }
 
     private static class InputProcessor {
-        BufferedReader br;
-        StringTokenizer st;
+        private BufferedReader br;
+        private StringTokenizer st;
 
         public InputProcessor() {
-            this.br = new BufferedReader(new InputStreamReader(System.in));
+            br = new BufferedReader(new InputStreamReader(System.in));
         }
 
         public String next() {
-            while(st == null || !st.hasMoreElements()) {
+            while (st == null || !st.hasMoreElements()) {
                 try {
                     st = new StringTokenizer(br.readLine());
                 } catch (IOException e) {
@@ -130,7 +147,6 @@ public class Main {
 
         public String nextLine() {
             String input = "";
-
             try {
                 input = br.readLine();
             } catch (IOException e) {
