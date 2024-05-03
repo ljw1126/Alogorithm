@@ -3,37 +3,37 @@ import java.io.*;
 
 public class Main {
     
-    static StringBuilder sb = new StringBuilder();
-    static InputProcessor inputProcessor = new InputProcessor();
-    static String NEW_LINE = System.lineSeparator();
-    static int MOD = 1000000009;
-    static int N;
-    static long[] DP;
+     private static StringBuilder sb = new StringBuilder();
+    private static InputProcessor inputProcessor = new InputProcessor();
+
+    private static final int MOD = 1000_000_009;
+
+    private static final int MAX_N = 1000_000;
+    private static int T;
+    private static long[] DP = new long[MAX_N + 1];
 
     public static void main(String[] args) throws IOException {
-        preprocess();
-
-        int T = inputProcessor.nextInt();
-        while(T > 0) {
-            N = inputProcessor.nextInt();
-            sb.append(DP[N]).append(NEW_LINE);
-
-            T -= 1;
-        }
-
+        preProcess();
+        input();
         output();
     }
 
-    private static void preprocess() {
-        DP = new long[1000001];
-        // 초기화
+    private static void preProcess() {
         DP[1] = 1;
         DP[2] = 2;
         DP[3] = 4;
 
-        for(int i = 4; i <= 1000000; i++) {
-            DP[i] = DP[i - 1] + DP[i - 2] + DP[i - 3];
-            DP[i] %= MOD;
+        for (int i = 4; i <= MAX_N; i++) {
+            DP[i] = (DP[i - 1] + DP[i - 2] + DP[i - 3]) % MOD;
+        }
+    }
+
+    private static void input() {
+        T = inputProcessor.nextInt();
+        while (T > 0) {
+            T -= 1;
+            int n = inputProcessor.nextInt();
+            sb.append(DP[n]).append("\n");
         }
     }
 
@@ -53,7 +53,7 @@ public class Main {
         }
 
         public String next() {
-            while(st == null || !st.hasMoreElements()) {
+            while (st == null || !st.hasMoreElements()) {
                 try {
                     st = new StringTokenizer(br.readLine());
                 } catch (IOException e) {
