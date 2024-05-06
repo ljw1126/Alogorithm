@@ -3,57 +3,108 @@ import java.io.*;
 
 public class Main {
     
-    static List<Integer>[] adj;
+    private static StringBuilder sb = new StringBuilder();
+    private static InputProcessor inputProcessor = new InputProcessor();
 
-    static void input() throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+    private static int N, M, X;
+    private static List<List<Integer>> ADJ;
+    private static int[] LEAF;
+    private static boolean[] VISIT;
 
-        int N = Integer.parseInt(st.nextToken()); // 작업할 개수 N (노드)
-        int M = Integer.parseInt(st.nextToken()); // 작업 순서 정보 개수 (간선)
+    public static void main(String[] args) throws IOException {
+        input();
+        pro();
+        output();
+    }
 
-        adj = new ArrayList[N + 1];
-        for(int i = 1; i <= N; i++) adj[i] = new ArrayList<>();
+    private static void input() {
+        N = inputProcessor.nextInt(); // 작업 개수 (노드)
+        M = inputProcessor.nextInt(); // 작업 순서 정보 (간선)
 
-        for(int i = 1; i <= M; i++) {
-            st = new StringTokenizer(br.readLine());
-            int from = Integer.parseInt(st.nextToken());
-            int to = Integer.parseInt(st.nextToken());
-
-            adj[to].add(from);
+        ADJ = new ArrayList<>();
+        for (int i = 0; i <= N; i++) {
+            ADJ.add(new ArrayList<>());
         }
 
-        int X = Integer.parseInt(br.readLine()); // 반드시 끝내야 하는 작업 X
+        for (int i = 1; i <= M; i++) {
+            int a = inputProcessor.nextInt();
+            int b = inputProcessor.nextInt();
 
-        boolean[] visited = new boolean[N + 1];
-        int[] leaf = new int[N + 1];
-        Arrays.fill(leaf, 1);
-        leaf[X] = 0;
-        dfs(X, -1, visited, leaf);
+            ADJ.get(b).add(a);
+        }
 
+        X = inputProcessor.nextInt();
+
+        LEAF = new int[N + 1];
+        Arrays.fill(LEAF, 1);
+        LEAF[X] = 0;
+
+        VISIT = new boolean[N + 1];
+    }
+
+    private static void pro() {
+        dfs(X, -1);
+        sb.append(LEAF[X]);
+    }
+
+    private static void dfs(int node, int prev) {
+        VISIT[node] = true;
+
+        for (int next : ADJ.get(node)) {
+            if (next == prev) continue;
+            if (VISIT[next]) continue;
+
+            dfs(next, node);
+            LEAF[node] += LEAF[next];
+        }
+    }
+
+    private static void output() throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        bw.write(String.valueOf(leaf[X]));
+        bw.write(sb.toString());
         bw.flush();
         bw.close();
     }
 
-    static void dfs(int node, int prev, boolean[] visited, int[] leaf) {
-        visited[node] = true;
-        if(adj[node].isEmpty()) {
-            return;
+    private static class InputProcessor {
+        BufferedReader br;
+        StringTokenizer st;
+
+        public InputProcessor() {
+            this.br = new BufferedReader(new InputStreamReader(System.in));
         }
 
-        for(int next : adj[node]) {
-            if(next == prev) continue;
-            if(visited[next]) continue;
+        public String next() {
+            while (st == null || !st.hasMoreElements()) {
+                try {
+                    st = new StringTokenizer(br.readLine());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
 
-            dfs(next, node, visited, leaf);
-            leaf[node] += leaf[next];
+            return st.nextToken();
         }
-    }
 
-    public static void main(String[] args) throws Exception {
-        input();
+        public String nextLine() {
+            String input = "";
+            try {
+                input = br.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return input;
+        }
+
+        public int nextInt() {
+            return Integer.parseInt(next());
+        }
+
+        public long nextLong() {
+            return Long.parseLong(next());
+        }
+
     }
     
 }
