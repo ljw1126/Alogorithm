@@ -4,19 +4,10 @@ import java.io.*;
 public class Main {
     private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
-    private static final String ADD = "add";
-    private static final String RECOMMEND = "recommend";
-    private static final String SOLVED = "solved";
 
+    private static Map<Integer, Problem> NO_PROBLEM = new HashMap<>();
+    private static TreeSet<Problem> PROBLEMS = new TreeSet<>();
     private static int N, M;
-    private static Problems PROBLEMS;
-    private static Map<Integer, Integer> PROBLEM_MAP = new HashMap<>();
-
-    public static void main(String[] args) throws IOException {
-        input();
-        pro();
-        output();
-    }
 
     private static class Problem implements Comparable<Problem> {
         private int no;
@@ -25,17 +16,6 @@ public class Main {
         public Problem(int no, int level) {
             this.no = no;
             this.level = level;
-        }
-
-        public boolean isSameNo(int no) {
-            return this.no == no;
-        }
-
-        @Override
-        public int compareTo(Problem o) {
-            if (this.level != o.level) return this.level - o.level;
-
-            return this.no - o.no;
         }
 
         @Override
@@ -50,85 +30,68 @@ public class Main {
         public int hashCode() {
             return Objects.hash(no, level);
         }
+
+        @Override
+        public int compareTo(Problem o) {
+            if (this.level != o.level) return o.level - this.level;
+
+            return o.no - this.no;
+        }
     }
 
-    private static class Problems {
-        private static final int HARD = 1; // 가장 어려운 문제, 번호 큰 순
-        private static final int EASY = -1; // 가장 쉬운 문제, 번호 작은 순
-        private final TreeSet<Problem> problems;
-
-        public Problems() {
-            this(new TreeSet<>());
-        }
-
-        public Problems(TreeSet<Problem> problems) {
-            this.problems = problems;
-        }
-
-        public void add(Problem problem) {
-            this.problems.add(problem);
-        }
-
-        public Problem recommend(int x) {
-            if (this.problems.isEmpty()) {
-                return null;
-            }
-            
-            if (x == EASY) {
-                return this.problems.first();
-            }
-
-            return this.problems.last();
-        }
-
-        public void solved(Problem p) {
-            this.problems.remove(p);
-        }
+    public static void main(String[] args) throws IOException {
+        input();
+        pro();
+        output();
     }
 
     private static void input() {
-        N = inputProcessor.nextInt();
-
-        PROBLEMS = new Problems();
+        N = inputProcessor.nextInt(); // 추천 문제 개수
         for (int i = 1; i <= N; i++) {
             int p = inputProcessor.nextInt(); // 문제 번호
-            int l = inputProcessor.nextInt(); // 문제 난이도
+            int l = inputProcessor.nextInt(); // 난이도
 
-            PROBLEMS.add(new Problem(p, l));
-            PROBLEM_MAP.put(p, l);
+            Problem problem = new Problem(p, l);
+            PROBLEMS.add(problem);
+            NO_PROBLEM.put(p, problem);
         }
     }
+
+    private static final String RECOMMEND = "recommend";
+    private static final String ADD = "add";
+    private static final String SOLVED = "solved";
 
 
     private static void pro() {
         M = inputProcessor.nextInt();
         while (M > 0) {
             M -= 1;
-            String cmd = inputProcessor.next();
 
+            String cmd = inputProcessor.next();
             if (ADD.equals(cmd)) {
                 int p = inputProcessor.nextInt();
                 int l = inputProcessor.nextInt();
-                PROBLEMS.add(new Problem(p, l));
-                continue;
-            }
 
-            if (RECOMMEND.equals(cmd)) {
+                Problem newProblem = new Problem(p, l);
+                PROBLEMS.add(newProblem);
+                NO_PROBLEM.put(p, newProblem);
+            } else if (RECOMMEND.equals(cmd)) {
                 int x = inputProcessor.nextInt();
-                Problem recommend = PROBLEMS.recommend(x);
-                sb.append(recommend.no).append("\n");
-                continue;
-            }
 
-            if (SOLVED.equals(cmd)) {
+                if (x == 1) {
+                    Problem first = PROBLEMS.first();
+                    sb.append(first.no).append("\n");
+                } else if (x == -1) {
+                    Problem last = PROBLEMS.last();
+                    sb.append(last.no).append("\n");
+                }
+
+            } else if (SOLVED.equals(cmd)) {
                 int p = inputProcessor.nextInt();
-                int l = PROBLEM_MAP.getOrDefault(p, -1);
-
-                PROBLEMS.solved(new Problem(p, l));
-                PROBLEM_MAP.remove(p);
+                Problem removed = NO_PROBLEM.remove(p);
+                PROBLEMS.remove(removed);
             }
         }
-
     }
 
     private static void output() throws IOException {
