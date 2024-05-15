@@ -7,7 +7,8 @@ public class Main {
     private static InputProcessor inputProcessor = new InputProcessor();
 
     private static int N, P, Q, RESULT;
-    private static int[] Xi, MUTIPLE, SHUFFLE;
+    private static int[] Xi;
+    private static int[] DATA, MULTIPLE;
 
     public static void main(String[] args) throws IOException {
         input();
@@ -26,25 +27,25 @@ public class Main {
         P = inputProcessor.nextInt(); // 더하기
         Q = inputProcessor.nextInt(); // 곱하기
 
-        MUTIPLE = new int[Q + 1];
-        SHUFFLE = new int[N + 1];
+        DATA = new int[N + 1];
+        MULTIPLE = new int[Q + 1]; // 곱셈을 기준으로 그룹을 나눔
     }
 
     private static void pro() {
-        divideGroup(1, 1);
+        divideMultiGroup(1, 1);
         sb.append(RESULT);
     }
 
-    private static void divideGroup(int start, int cnt) {
+    private static void divideMultiGroup(int start, int cnt) {
         if (cnt == Q + 1) {
             shuffleNumber(1, 0, 0);
             return;
         }
 
         for (int i = start; i <= N - 1; i++) {
-            MUTIPLE[cnt] = i;
-            divideGroup(i + 1, cnt + 1);
-            MUTIPLE[cnt] = 0;
+            MULTIPLE[cnt] = i;
+            divideMultiGroup(i + 1, cnt + 1);
+            MULTIPLE[cnt] = 0;
         }
     }
 
@@ -55,11 +56,11 @@ public class Main {
         }
 
         for (int i = 1; i <= N; i++) {
-            if ((flag & (1 << i)) != 0) continue; // 비트 마스킹 기법
+            if ((flag & (1 << i)) != 0) continue;
 
-            SHUFFLE[idx] = Xi[i];
-            shuffleNumber(idx + 1, cnt + 1, (flag | 1 << i));
-            SHUFFLE[idx] = 0;
+            DATA[idx] = Xi[i];
+            shuffleNumber(idx + 1, cnt + 1, flag | 1 << i);
+            DATA[idx] = 0;
         }
     }
 
@@ -68,19 +69,18 @@ public class Main {
         int idx = 1;
         for (int i = 1; i < Q + 1; i++) {
             int sum = 0;
-
-            for (int j = idx; j <= MUTIPLE[i]; j++) {
-                sum += SHUFFLE[j];
+            for (int j = idx; j <= MULTIPLE[i]; j++) {
+                sum += DATA[j];
             }
 
             total *= sum;
-            idx = MUTIPLE[i] + 1;
+            idx = MULTIPLE[i] + 1;
         }
 
         if (idx <= N) {
             int sum = 0;
             for (int i = idx; i <= N; i++) {
-                sum += SHUFFLE[i];
+                sum += DATA[i];
             }
 
             total *= sum;
