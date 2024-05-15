@@ -5,85 +5,29 @@ public class Main {
     private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
-
     public static void main(String[] args) throws IOException {
-        input();
         pro();
         output();
-    }
-
-    private static void input() {
-
     }
 
     private static void pro() {
         String html = inputProcessor.nextLine();
         html = html.replaceAll("<main>|</main>", "");
+        String[] tokens = html.split("</div>|<p>|</p>");
 
-        int left = 0;
-        int right = html.length();
-        while (left < right) {
-            int divOpen = html.indexOf("title=\"", left);
-            if (divOpen == -1) break;
+        for (String token : tokens) {
+            if (token.isEmpty()) continue;
 
-            int titleEnd = html.indexOf("\">", divOpen);
-            String title = html.substring(divOpen + 7, titleEnd);
-            sb.append("title : " + title).append("\n");
-
-            int divClose = html.indexOf("</div>", divOpen);
-
-            int cursor = titleEnd;
-            while (true) {
-                int paragraphOpen = html.indexOf("<p>", cursor);
-
-                if (paragraphOpen == -1) break;
-                if (paragraphOpen > divClose) break;
-
-                int paragraphClose = html.indexOf("</p>", paragraphOpen);
-
-                String paragraphBody = html.substring(paragraphOpen + 3, paragraphClose);
-                sb.append(erased(paragraphBody)).append("\n");
-
-                cursor = paragraphClose;
-            }
-
-            left = divClose;
-        }
-    }
-
-    private static String erased(String text) {
-        String result = "";
-        boolean openTag = false;
-        boolean closeTag = true;
-        boolean blank = false;
-        for (int i = 0; i < text.length(); i++) {
-            char c = text.charAt(i);
-            if (c == '<') {
-                openTag = true;
-                closeTag = false;
-                continue;
-            }
-
-            if (c == '>') {
-                openTag = false;
-                closeTag = true;
-                continue;
-            }
-
-            if (openTag | !closeTag) continue;
-
-            if (c == ' ') {
-                if (blank) continue;
-
-                blank = true;
+            int startTitle = token.indexOf("title=\"");
+            if (startTitle != -1) {
+                int endTitle = token.indexOf("\">", startTitle);
+                String title = token.substring(startTitle + 7, endTitle);
+                sb.append("title : ").append(title).append("\n");
             } else {
-                blank = false;
+                String paragraph = token.replaceAll("<.*?>", "").replaceAll("\\s{2,}", " ");
+                sb.append(paragraph).append("\n");
             }
-
-            result += c;
         }
-
-        return result;
     }
 
     private static void output() throws IOException {
