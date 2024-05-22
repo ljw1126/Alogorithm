@@ -6,8 +6,7 @@ public class Main {
     private static InputProcessor inputProcessor = new InputProcessor();
 
     private static final int MAX_CHANNEL = 999_999;
-    private static final int MAX_DIGIT = 6;
-
+    
     private static int N, M, RESULT;
     private static boolean[] BROKEN;
 
@@ -27,43 +26,28 @@ public class Main {
             BROKEN[no] = true;
         }
 
-        RESULT = 5000001;
+        RESULT = Integer.MAX_VALUE;
     }
 
     private static void pro() {
-        if (N == 100) {
-            RESULT = 0;
-        } else if (M == 10) {
-            RESULT = Math.abs(100 - N);
-        } else {
-            pushButton(0, "100");
+        RESULT = Math.abs(N - 100);
+        for (int i = 0; i <= MAX_CHANNEL; i++) {
+            String channel = String.valueOf(i);
+
+            boolean isPossible = true;
+            for (int j = 0; j < channel.length(); j++) {
+                if (BROKEN[channel.charAt(j) - '0']) {
+                    isPossible = false;
+                    break;
+                }
+            }
+
+            if (isPossible) {
+                RESULT = Math.min(RESULT, Math.abs(N - i) + channel.length());
+            }
         }
-        
+
         sb.append(RESULT);
-    }
-
-    private static void pushButton(int cnt, String value) {
-        if (cnt > MAX_DIGIT) return;
-
-        int ch = Integer.parseInt(value);
-        if (ch >= MAX_CHANNEL) return;
-
-        // 현재 위치에서 +, - 이동하는 경우
-        if (ch == N) {
-            RESULT = Math.min(RESULT, cnt);
-        } else if (ch > N) {
-            RESULT = Math.min(RESULT, cnt + (ch - N));
-        } else {
-            RESULT = Math.min(RESULT, cnt + (N - ch));
-        }
-
-        for (int i = 0; i <= 9; i++) {
-            if (BROKEN[i]) continue;
-
-            String no = String.valueOf(i);
-            String next = cnt == 0 ? no : value.concat(no);
-            pushButton(cnt + 1, next);
-        }
     }
 
     private static void output() throws IOException {
@@ -113,5 +97,4 @@ public class Main {
         }
 
     }
-    
 }
