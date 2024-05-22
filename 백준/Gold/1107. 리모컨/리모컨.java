@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    private static StringBuilder sb = new StringBuilder();
+   private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
     private static final int MAX_CHANNEL = 999_999;
@@ -31,11 +31,18 @@ public class Main {
     }
 
     private static void pro() {
-        pushNumberButton(0, "100");
+        if (N == 100) {
+            RESULT = 0;
+        } else if (M == 10) {
+            RESULT = Math.abs(100 - N);
+        } else {
+            pushButton(0, "100");
+        }
+        
         sb.append(RESULT);
     }
 
-    private static void pushNumberButton(int cnt, String value) {
+    private static void pushButton(int cnt, String value) {
         if (cnt > MAX_DIGIT) return;
 
         int ch = Integer.parseInt(value);
@@ -55,7 +62,7 @@ public class Main {
 
             String no = String.valueOf(i);
             String next = cnt == 0 ? no : value.concat(no);
-            pushNumberButton(cnt + 1, next);
+            pushButton(cnt + 1, next);
         }
     }
 
