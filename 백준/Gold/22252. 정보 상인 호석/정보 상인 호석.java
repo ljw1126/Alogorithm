@@ -2,55 +2,51 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-    static StringBuilder sb = new StringBuilder();
-    static InputProcessor inputProcessor = new InputProcessor();
-    static int ONE = 1;
-    static int TWO = 2;
+    private static StringBuilder sb = new StringBuilder();
+    private static InputProcessor inputProcessor = new InputProcessor();
 
-    static int Q;
-    static long SUM;
-    static Map<String, Queue<Integer>> GORILLA = new HashMap<>();
 
     public static void main(String[] args) throws IOException {
         input();
-
-        while(Q > 0) {
-            pro();
-            Q -= 1;
-        }
-
-        sb.append(SUM);
-
         output();
     }
 
-    private static void pro() {
-        int cmd = inputProcessor.nextInt();
-        String name = inputProcessor.next();
-        int count = inputProcessor.nextInt();
-
-        if(!GORILLA.containsKey(name)) {
-            GORILLA.put(name, new PriorityQueue<>((a, b) -> b - a));
-        }
-
-        Queue<Integer> que = GORILLA.get(name);
-        
-        if(cmd == ONE) {
-            for(int i = 1; i <= count; i++) {
-                int value = inputProcessor.nextInt();
-                que.add(value);
-            }
-        } else if(cmd == TWO) {
-            for(int i = 1; i <= count; i++) {
-                if(que.isEmpty()) return;
-                SUM += que.poll();
-            }
-        }
-    }
+    private static int Q;
+    private static long RESULT;
+    private static Map<String, Queue<Integer>> GORIL = new HashMap<>();
 
     private static void input() {
-        Q = inputProcessor.nextInt();
+        Q = inputProcessor.nextInt(); // 쿼리의 개수
+
+        for (int i = 1; i <= Q; i++) {
+            pro();
+        }
+
+        sb.append(RESULT);
+    }
+
+    private static void pro() {
+        int query = inputProcessor.nextInt();
+        String name = inputProcessor.next(); // 고릴라 이름
+        int kb = inputProcessor.nextInt(); // k개 정보를 가짐
+
+        if (!GORIL.containsKey(name)) {
+            GORIL.put(name, new PriorityQueue<>(Comparator.reverseOrder()));
+        }
+
+        Queue<Integer> pq = GORIL.get(name);
+        if (query == 1) { // 정보를 얻은 고릴라
+            for (int i = 1; i <= kb; i++) {
+                int c = inputProcessor.nextInt();
+                pq.add(c);
+            }
+        } else { // 정보 구매
+            for (int i = 1; i <= kb; i++) {
+                if (pq.isEmpty()) break;
+
+                RESULT += pq.poll();
+            }
+        }
     }
 
     private static void output() throws IOException {
@@ -61,15 +57,15 @@ public class Main {
     }
 
     private static class InputProcessor {
-        BufferedReader br;
-        StringTokenizer st;
+        private StringTokenizer st;
+        private BufferedReader br;
 
         public InputProcessor() {
             this.br = new BufferedReader(new InputStreamReader(System.in));
         }
 
         public String next() {
-            while(st == null || !st.hasMoreElements()) {
+            while (st == null || !st.hasMoreElements()) {
                 try {
                     st = new StringTokenizer(br.readLine());
                 } catch (IOException e) {
