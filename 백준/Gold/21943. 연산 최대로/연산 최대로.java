@@ -2,13 +2,13 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-    private static StringBuilder sb = new StringBuilder();
+   private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
     private static int N, P, Q, RESULT;
-    private static int[] Xi;
-    private static int[] DATA, MULTIPLE;
+    private static int[] DATA;
+    private static int[] SELECTED;
+    private static int[] MULTIPLE;
 
     public static void main(String[] args) throws IOException {
         input();
@@ -19,32 +19,32 @@ public class Main {
     private static void input() {
         N = inputProcessor.nextInt();
 
-        Xi = new int[N + 1];
+        DATA = new int[N + 1];
         for (int i = 1; i <= N; i++) {
-            Xi[i] = inputProcessor.nextInt();
+            DATA[i] = inputProcessor.nextInt();
         }
 
         P = inputProcessor.nextInt(); // 더하기
         Q = inputProcessor.nextInt(); // 곱하기
 
-        DATA = new int[N + 1];
-        MULTIPLE = new int[Q + 1]; // 곱셈을 기준으로 그룹을 나눔
+        MULTIPLE = new int[Q + 1];
+        SELECTED = new int[N + 1];
     }
 
     private static void pro() {
-        divideMultiGroup(1, 1);
+        divideByMultiple(1, 1);
         sb.append(RESULT);
     }
 
-    private static void divideMultiGroup(int start, int cnt) {
+    private static void divideByMultiple(int start, int cnt) {
         if (cnt == Q + 1) {
             shuffleNumber(1, 0, 0);
             return;
         }
 
-        for (int i = start; i <= N - 1; i++) {
+        for (int i = start; i <= N - 1; i++) { // 1 2 나 2 1 이나 똑같다
             MULTIPLE[cnt] = i;
-            divideMultiGroup(i + 1, cnt + 1);
+            divideByMultiple(i + 1, cnt + 1);
             MULTIPLE[cnt] = 0;
         }
     }
@@ -56,11 +56,13 @@ public class Main {
         }
 
         for (int i = 1; i <= N; i++) {
-            if ((flag & (1 << i)) != 0) continue;
+            if ((flag & (1 << i)) != 0) {
+                continue;
+            }
 
-            DATA[idx] = Xi[i];
-            shuffleNumber(idx + 1, cnt + 1, flag | 1 << i);
-            DATA[idx] = 0;
+            SELECTED[idx] = DATA[i];
+            shuffleNumber(idx + 1, cnt + 1, (flag | (1 << i)));
+            SELECTED[idx] = 0;
         }
     }
 
@@ -68,19 +70,21 @@ public class Main {
         int total = 1;
         int idx = 1;
         for (int i = 1; i < Q + 1; i++) {
+            int multiple = MULTIPLE[i];
+
             int sum = 0;
-            for (int j = idx; j <= MULTIPLE[i]; j++) {
-                sum += DATA[j];
+            for (int j = idx; j <= multiple; j++) {
+                sum += SELECTED[j];
             }
 
             total *= sum;
-            idx = MULTIPLE[i] + 1;
+            idx = multiple + 1;
         }
 
         if (idx <= N) {
             int sum = 0;
             for (int i = idx; i <= N; i++) {
-                sum += DATA[i];
+                sum += SELECTED[i];
             }
 
             total *= sum;
