@@ -2,82 +2,99 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    static int N, M;
-    static int[] selected;
-    static StringBuilder sb = new StringBuilder();
+    
+    private static StringBuilder sb = new StringBuilder();
+    private static InputProcessor inputProcessor = new InputProcessor();
 
-    static void input(){
-        FastReader scan = new FastReader();
-        N = scan.nextInt();
-        M = scan.nextInt();
-        selected = new int[M+1];
-    }
-
-    static void rec_func(int k){
-        if(k == M+1){
-            for(int idx = 1 ; idx <= M ; idx ++) sb.append(selected[idx]).append(' ');
-            sb.append('\n');
-        }else{
-            for(int cand = selected[k-1] +1; cand <= N; cand++){
-                selected[k] = cand;
-                rec_func(k+1);
-                selected[k] = 0;     
-            }
-        }
-    }
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         input();
-        rec_func(1);
-        System.out.println(sb.toString()); 
-
+        pro();
+        output();
     }
 
-    static class FastReader{
+    private static int N, M;
+    private static int[] SELECTED;
+
+    private static void input() {
+        N = inputProcessor.nextInt(); // 1 ~ N
+        M = inputProcessor.nextInt(); // 개수
+
+        SELECTED = new int[M];
+    }
+
+    private static void pro() {
+        rec(1, 0, 0);
+    }
+
+    private static void rec(int start, int cnt, int flag) {
+        if (cnt == M) {
+            appendResult();
+            return;
+        }
+
+        for (int i = start; i <= N; i++) {
+            if ((flag & (1 << i)) != 0) continue;
+
+            SELECTED[cnt] = i;
+            rec(i + 1, cnt + 1, flag | 1 << i);
+            SELECTED[cnt] = 0;
+        }
+    }
+
+    private static void appendResult() {
+        for (int i = 0; i < M; i++) {
+            sb.append(SELECTED[i]).append(" ");
+        }
+        sb.append("\n");
+    }
+
+
+    private static void output() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
+    }
+
+    private static class InputProcessor {
         BufferedReader br;
-        StringTokenizer st; 
+        StringTokenizer st;
 
-        public FastReader(){
-            br = new BufferedReader(new InputStreamReader(System.in));
+        public InputProcessor() {
+            this.br = new BufferedReader(new InputStreamReader(System.in));
         }
 
-        public FastReader(String s) throws FileNotFoundException{
-            br = new BufferedReader(new FileReader(new File(s)));
-        }
-
-        String next(){
-            while(st == null || !st.hasMoreElements()){
-                try{
+        public String next() {
+            while (st == null || !st.hasMoreElements()) {
+                try {
                     st = new StringTokenizer(br.readLine());
-                }catch(IOException e){
-                    e.printStackTrace();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
             }
+
             return st.nextToken();
         }
 
-        int nextInt(){
+        public String nextLine() {
+            String input = "";
+            try {
+                input = br.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return input;
+        }
+
+        public int nextInt() {
             return Integer.parseInt(next());
         }
 
-        long nextLong(){
+        public long nextLong() {
             return Long.parseLong(next());
         }
 
-        double nextDouble(){
-            return Double.parseDouble(next());
-        }
-
-        String nextLine(){
-            String str = "";
-            try{
-                str = br.readLine();
-            }catch(IOException e){
-                e.printStackTrace();
-            }
-            return str;
-        }
-
-
     }
+    
 }
