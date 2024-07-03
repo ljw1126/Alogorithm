@@ -2,32 +2,80 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    static StringBuilder sb = new StringBuilder();
-    static int MAX_VALUE = 2501;
-    static int[][] DIR = {{1, 0}, {-1, 0}, {0,  1}, {0, -1}};
-    static int R, C;
-    static int[][] DIST_WATER, DIST_HEDGEHOG;
-    static String[] MATRIX;
+    private static StringBuilder sb = new StringBuilder();
+    private static InputProcessor inputProcessor = new InputProcessor();
 
+    private static int[][] DIR = {
+            {0, 1},
+            {0, -1},
+            {1, 0},
+            {-1, 0}
+    };
+
+    private static final Character BLANK = '.';
+    private static final Character HEDGEHOG = 'S';
+    private static final Character BEAVER = 'D';
+    private static final Character WATER = '*';
+    private static final Character STONE = 'X';
+    private static final int MAX_DIST = 2501;
+    private static int R, C;
+    private static int[][] DIST_HEDGEHOG, DIST_WATER;
+    private static String[] FIELD;
 
     public static void main(String[] args) throws IOException {
         input();
-
         pro();
-
         output();
     }
 
-    private static void pro() {
-        calculateWater();
-        runHedgeHog();
+    private static void input() {
+        R = inputProcessor.nextInt();
+        C = inputProcessor.nextInt();
 
-        Loop:
-        for(int i = 0; i < R; i++) {
-            for(int j = 0; j < C; j++) {
-                if(MATRIX[i].charAt(j) == 'D') {
-                    sb.append(DIST_HEDGEHOG[i][j] == MAX_VALUE ? "KAKTUS" : DIST_HEDGEHOG[i][j]);
-                    break Loop;
+        FIELD = new String[R];
+        for (int i = 0; i < R; i++) {
+            FIELD[i] = inputProcessor.nextLine();
+        }
+
+        DIST_WATER = new int[R][C];
+        DIST_HEDGEHOG = new int[R][C];
+        for (int i = 0; i < R; i++) {
+            Arrays.fill(DIST_WATER[i], MAX_DIST);
+            Arrays.fill(DIST_HEDGEHOG[i], MAX_DIST);
+        }
+    }
+
+    private static void pro() {
+        fillWater();
+        runHedgeHog();
+    }
+
+    private static void fillWater() {
+        Deque<Integer> que = new ArrayDeque<>();
+        for (int i = 0; i < R; i++) {
+            for (int j = 0; j < C; j++) {
+                if (FIELD[i].charAt(j) == WATER) {
+                    que.add(i);
+                    que.add(j);
+                    DIST_WATER[i][j] = 0;
+                }
+            }
+        }
+
+        while (!que.isEmpty()) {
+            int x = que.poll();
+            int y = que.poll();
+
+            for (int i = 0; i < 4; i++) {
+                int dx = x + DIR[i][0];
+                int dy = y + DIR[i][1];
+
+                if (dx < 0 || dy < 0 || dx >= R || dy >= C) continue;
+                if (FIELD[dx].charAt(dy) != BLANK) continue;
+                if (DIST_WATER[dx][dy] > DIST_WATER[x][y] + 1) {
+                    DIST_WATER[dx][dy] = DIST_WATER[x][y] + 1;
+                    que.add(dx);
+                    que.add(dy);
                 }
             }
         }
@@ -36,89 +84,51 @@ public class Main {
     private static void runHedgeHog() {
         Deque<Integer> que = new ArrayDeque<>();
 
-        Loop:
-        for(int i = 0; i < R; i++) {
-            for(int j = 0; j < C; j++) {
-                if(MATRIX[i].charAt(j) == 'S') {
+        int destX = 0;
+        int destY = 0;
+        for (int i = 0; i < R; i++) {
+            for (int j = 0; j < C; j++) {
+                char c = FIELD[i].charAt(j);
+                if (c == HEDGEHOG) {
                     que.add(i);
                     que.add(j);
                     DIST_HEDGEHOG[i][j] = 0;
-                    break Loop;
+                }
+
+                if (c == BEAVER) {
+                    destX = i;
+                    destY = j;
                 }
             }
         }
 
-        while(!que.isEmpty()) {
+        while (!que.isEmpty()) {
             int x = que.poll();
             int y = que.poll();
 
-            for(int i = 0; i < 4; i++) {
-                int nx = x + DIR[i][0];
-                int ny = y + DIR[i][1];
+            for (int i = 0; i < 4; i++) {
+                int dx = x + DIR[i][0];
+                int dy = y + DIR[i][1];
 
-                if(nx < 0 || ny < 0 || nx >= R || ny >= C) continue;
-                if(MATRIX[nx].charAt(ny) == 'X') continue; // 바위
-                if(DIST_HEDGEHOG[nx][ny] != MAX_VALUE) continue;
-                if(DIST_WATER[nx][ny] <= DIST_HEDGEHOG[x][y] + 1) continue;
+                if (dx < 0 || dy < 0 || dx >= R || dy >= C) continue;
+                if (FIELD[dx].charAt(dy) == STONE) continue;
+                if (DIST_WATER[dx][dy] <= DIST_HEDGEHOG[x][y] + 1) continue;
 
-                DIST_HEDGEHOG[nx][ny] = DIST_HEDGEHOG[x][y] + 1;
-                que.add(nx);
-                que.add(ny);
-            }
-        }
-    }
-
-    private static void calculateWater() {
-        Deque<Integer> que = new ArrayDeque<>();
-
-        for(int i = 0; i < R; i++) {
-            for(int j = 0; j < C; j++) {
-                if(MATRIX[i].charAt(j) == '*') {
-                    que.add(i);
-                    que.add(j);
-                    DIST_WATER[i][j] = 0;
+                if (DIST_HEDGEHOG[dx][dy] > DIST_HEDGEHOG[x][y] + 1) {
+                    DIST_HEDGEHOG[dx][dy] = DIST_HEDGEHOG[x][y] + 1;
+                    que.add(dx);
+                    que.add(dy);
                 }
             }
         }
 
-        while(!que.isEmpty()) {
-            int x = que.poll();
-            int y = que.poll();
-
-            for(int i = 0; i < 4; i++) {
-                int nx = x + DIR[i][0];
-                int ny = y + DIR[i][1];
-
-                if(nx < 0 || ny < 0 || nx >= R || ny >= C) continue;
-                if(MATRIX[nx].charAt(ny) != '.') continue;
-
-                if(DIST_WATER[nx][ny] > DIST_WATER[x][y] + 1) {
-                    DIST_WATER[nx][ny] = DIST_WATER[x][y] + 1;
-                    que.add(nx);
-                    que.add(ny);
-                }
-            }
+        if (DIST_HEDGEHOG[destX][destY] == MAX_DIST) {
+            sb.append("KAKTUS");
+        } else {
+            sb.append(DIST_HEDGEHOG[destX][destY]);
         }
     }
 
-
-    private static void input() {
-        InputProcessor inputProcessor = new InputProcessor();
-        R = inputProcessor.nextInt();
-        C = inputProcessor.nextInt();
-
-        MATRIX = new String[R];
-        for(int i = 0; i < R; i++) {
-            MATRIX[i] = inputProcessor.nextLine();
-        }
-
-        DIST_WATER = new int[R][C];
-        DIST_HEDGEHOG = new int[R][C];
-        for(int i = 0; i < R; i++) {
-            Arrays.fill(DIST_WATER[i], MAX_VALUE);
-            Arrays.fill(DIST_HEDGEHOG[i], MAX_VALUE);
-        }
-    }
     private static void output() throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         bw.write(sb.toString());
@@ -135,11 +145,11 @@ public class Main {
         }
 
         public String next() {
-            while(st == null || !st.hasMoreElements()) {
+            while (st == null || !st.hasMoreElements()) {
                 try {
                     st = new StringTokenizer(br.readLine());
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    throw new RuntimeException(e);
                 }
             }
 
@@ -148,12 +158,12 @@ public class Main {
 
         public String nextLine() {
             String input = "";
-
             try {
                 input = br.readLine();
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
+
             return input;
         }
 
@@ -164,5 +174,6 @@ public class Main {
         public long nextLong() {
             return Long.parseLong(next());
         }
+
     }
 }
