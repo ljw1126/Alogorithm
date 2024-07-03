@@ -2,14 +2,8 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    static StringBuilder sb = new StringBuilder();
-    static int[][] DIR = {
-            {2, 1}, {-2, -1}, {-2, 1}, {2, -1},
-            {1, 2}, {-1, -2}, {-1, 2}, {1, -2}
-    };
-    static int T, I, X1, Y1, X2, Y2;
-    static int[][] MATRIX;
-    static int[][] DIST;
+   private static StringBuilder sb = new StringBuilder();
+    private static InputProcessor inputProcessor = new InputProcessor();
 
     public static void main(String[] args) throws IOException {
         input();
@@ -17,61 +11,76 @@ public class Main {
         output();
     }
 
-    private static void pro(int x1, int y1, int x2, int y2) {
-        bfs(x1, y1, x2, y2);
-
-        sb.append(DIST[x2][y2]).append("\n");
-    }
+    private static int T, N;
+    private static int S_X, S_Y, E_X, E_Y;
 
     private static void input() {
-        InputProcessor inputProcessor = new InputProcessor();
         T = inputProcessor.nextInt();
-
-        while(T > 0) {
-            I = inputProcessor.nextInt();
-            MATRIX = new int[I][I];
-            DIST = new int[I][I];
-            // 시작 위치
-            X1 = inputProcessor.nextInt();
-            Y1 = inputProcessor.nextInt();
-
-            // 도착 위치
-            X2 = inputProcessor.nextInt();
-            Y2 = inputProcessor.nextInt();
-
-            pro(X1, Y1, X2, Y2);
-
+        while (T > 0) {
             T -= 1;
+
+            N = inputProcessor.nextInt();
+
+            S_X = inputProcessor.nextInt();
+            S_Y = inputProcessor.nextInt();
+
+            E_X = inputProcessor.nextInt();
+            E_Y = inputProcessor.nextInt();
+
+            pro();
         }
     }
 
-    private static void bfs(int x1, int y1, int x2, int y2) {
+    private static void pro() {
+        sb.append(bfs()).append("\n");
+    }
+
+    private static final int[][] DIR = {
+            {-2, 1},
+            {-1, 2},
+            {1, 2},
+            {2, 1},
+            {2, -1},
+            {1, -2},
+            {-1, -2},
+            {-2, -1}
+    };
+
+    private static int bfs() {
         Deque<Integer> que = new ArrayDeque<>();
-        que.add(x1);
-        que.add(y1);
+        que.add(S_X);
+        que.add(S_Y);
+        que.add(0);
 
-        for(int i = 0; i < I; i++) {
-            Arrays.fill(DIST[i], -1);
-        }
-        DIST[x1][y1] = 0;
+        boolean[][] visit = new boolean[N][N];
+        visit[S_X][S_Y] = true;
 
-        while(!que.isEmpty()) {
+        int result = Integer.MAX_VALUE;
+        while (!que.isEmpty()) {
             int x = que.poll();
             int y = que.poll();
+            int dist = que.poll();
 
-            for(int i = 0; i < 8; i++) {
-                int nx = x + DIR[i][0];
-                int ny = y + DIR[i][1];
+            if (x == E_X && y == E_Y) {
+                result = dist;
+                break;
+            }
 
-                if(nx < 0 || ny < 0 || nx >= I || ny >= I) continue;
-                if(DIST[nx][ny] != -1) continue;
+            for (int i = 0; i < 8; i++) {
+                int dx = x + DIR[i][0];
+                int dy = y + DIR[i][1];
 
-                DIST[nx][ny] = DIST[x][y] + 1;
-                que.add(nx);
-                que.add(ny);
+                if (dx < 0 || dy < 0 || dx >= N || dy >= N) continue;
+                if (visit[dx][dy]) continue;
+
+                visit[dx][dy] = true;
+                que.add(dx);
+                que.add(dy);
+                que.add(dist + 1);
             }
         }
 
+        return result;
     }
 
     private static void output() throws IOException {
@@ -82,18 +91,18 @@ public class Main {
     }
 
     private static class InputProcessor {
-        BufferedReader br;
-        StringTokenizer st;
+        private BufferedReader br;
+        private StringTokenizer st;
 
         public InputProcessor() {
             this.br = new BufferedReader(new InputStreamReader(System.in));
         }
 
         public String next() {
-            while(st == null || !st.hasMoreElements()) {
+            while (st == null || !st.hasMoreElements()) {
                 try {
                     st = new StringTokenizer(br.readLine());
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
@@ -102,14 +111,15 @@ public class Main {
         }
 
         public String nextLine() {
-            String input = "";
+            String result = "";
 
             try {
-                input = br.readLine();
+                result = br.readLine();
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new RuntimeException(e);
             }
-            return input;
+
+            return result;
         }
 
         public int nextInt() {
