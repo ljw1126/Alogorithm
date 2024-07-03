@@ -5,80 +5,50 @@ public class Main {
     private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
-    private static final int EMPTY = -1;
-    private static final int FRESH_TOMATO = 0;
-    private static final int OLD_TOMATO = 1;
-    private static final int MAX_VALUE = 1000001;
-    private static int[][] DIR = {
-            {0, 1, 0},
-            {0, -1, 0},
-            {1, 0, 0},
-            {-1, 0, 0},
-            {0, 0, 1},
-            {0, 0, -1}
-    };
-
-    private static int M, N, H;
-    private static int[][][] BOXES;
-    private static int[][][] DIST;
-
     public static void main(String[] args) throws IOException {
         input();
         pro();
         output();
     }
 
+    private static int M, N, H;
+    private static int[][][] BOXES;
+
     private static void input() {
-        M = inputProcessor.nextInt(); // 가로(열)
-        N = inputProcessor.nextInt(); // 세로(행)
-        H = inputProcessor.nextInt(); // 높이
+        M = inputProcessor.nextInt();
+        N = inputProcessor.nextInt();
+        H = inputProcessor.nextInt();
+        BOXES = new int[N + 1][M + 1][H + 1];
 
-        BOXES = new int[N][M][H];
-        DIST = new int[N][M][H];
-        for (int k = 0; k < H; k++) {
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < M; j++) {
-                    BOXES[i][j][k] = inputProcessor.nextInt();
-                    DIST[i][j][k] = MAX_VALUE;
+        for (int h = 1; h <= H; h++) {
+            for (int i = 1; i <= N; i++) {
+                for (int j = 1; j <= M; j++) {
+                    BOXES[i][j][h] = inputProcessor.nextInt();
                 }
             }
         }
     }
 
-    // 1: 익은 토마토, 0 : 익지 않은 토마토, -1 : 빈칸
+    private static final int[][] DIR = {
+            {1, 0, 0},
+            {-1, 0, 0},
+            {0, 1, 0},
+            {0, -1, 0},
+            {0, 0, 1},
+            {0, 0, -1},
+    };
+
+    // 1: 익은 토마토, 0 : 익지 않은 토마토, -1은 토마토가 들어있지 않은 칸
     private static void pro() {
-        bfs();
-
-        int result = 0;
-        loop:
-        for (int k = 0; k < H; k++) {
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < M; j++) {
-                    if (BOXES[i][j][k] == FRESH_TOMATO && DIST[i][j][k] == MAX_VALUE) {
-                        result = -1;
-                        break loop;
-                    }
-
-                    if (BOXES[i][j][k] != EMPTY && DIST[i][j][k] > result) {
-                        result = DIST[i][j][k];
-                    }
-                }
-            }
-        }
-
-        sb.append(result);
-    }
-
-    private static void bfs() {
         Deque<Integer> que = new ArrayDeque<>();
-        for (int k = 0; k < H; k++) {
-            for (int i = 0; i < N; i++) {
-                for (int j = 0; j < M; j++) {
-                    if (BOXES[i][j][k] == OLD_TOMATO) {
-                        DIST[i][j][k] = 0;
+
+        for (int h = 1; h <= H; h++) {
+            for (int i = 1; i <= N; i++) {
+                for (int j = 1; j <= M; j++) {
+                    if (BOXES[i][j][h] == 1) {
                         que.add(i);
                         que.add(j);
-                        que.add(k);
+                        que.add(h);
                     }
                 }
             }
@@ -94,15 +64,35 @@ public class Main {
                 int dy = y + DIR[i][1];
                 int dz = z + DIR[i][2];
 
-                if (dx < 0 || dy < 0 || dx >= N || dy >= M || dz < 0 || dz >= H) continue;
-                if (BOXES[dx][dy][dz] == EMPTY) continue;
-                if (DIST[dx][dy][dz] > DIST[x][y][z] + 1) {
-                    DIST[dx][dy][dz] = DIST[x][y][z] + 1;
-                    que.add(dx);
-                    que.add(dy);
-                    que.add(dz);
+                if (dx < 1 || dy < 1 || dz < 1 || dx > N || dy > M || dz > H) continue;
+                if (BOXES[dx][dy][dz] != 0) continue;
+
+                BOXES[dx][dy][dz] = BOXES[x][y][z] + 1;
+                que.add(dx);
+                que.add(dy);
+                que.add(dz);
+            }
+        }
+
+        boolean remain = false;
+        int result = 0;
+        for (int h = 1; h <= H; h++) {
+            for (int i = 1; i <= N; i++) {
+                for (int j = 1; j <= M; j++) {
+                    if (BOXES[i][j][h] == 0) {
+                        remain = true;
+                    }
+                    if (BOXES[i][j][h] != -1) {
+                        result = Math.max(result, BOXES[i][j][h]);
+                    }
                 }
             }
+        }
+
+        if (remain) {
+            sb.append(-1);
+        } else {
+            sb.append(result - 1);
         }
     }
 
@@ -114,8 +104,8 @@ public class Main {
     }
 
     private static class InputProcessor {
-        BufferedReader br;
-        StringTokenizer st;
+        private BufferedReader br;
+        private StringTokenizer st;
 
         public InputProcessor() {
             this.br = new BufferedReader(new InputStreamReader(System.in));
@@ -125,8 +115,8 @@ public class Main {
             while (st == null || !st.hasMoreElements()) {
                 try {
                     st = new StringTokenizer(br.readLine());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -134,14 +124,15 @@ public class Main {
         }
 
         public String nextLine() {
-            String input = "";
+            String result = "";
+
             try {
-                input = br.readLine();
+                result = br.readLine();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
-            return input;
+            return result;
         }
 
         public int nextInt() {
@@ -151,6 +142,5 @@ public class Main {
         public long nextLong() {
             return Long.parseLong(next());
         }
-
     }
 }
