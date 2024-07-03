@@ -2,118 +2,129 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
+    
+   private static StringBuilder sb = new StringBuilder();
+    private static InputProcessor inputProcessor = new InputProcessor();
 
-    static FastReader scan = new FastReader();
-  
-    static int N,M;
-    static ArrayList<Integer>[] arr;
-    static int[] dist;
-
-    public static void input(){
-        N = scan.nextInt();
-        M = scan.nextInt();
-
-        arr = new ArrayList[N+1];
-        dist = new int[N+1];
-        
-        for(int i = 1 ; i <= N ; i++) arr[i] = new ArrayList<>(); 
-
-        for(int i = 1 ; i <= M ; i++){ 
-            int a = scan.nextInt();
-            int b = scan.nextInt();
-            arr[a].add(b);
-            arr[b].add(a);
-        } 
-    }
-
-    public static int bfs(int start){
-
-        Queue<Integer> Q = new LinkedList<>();
-        Q.add(start);
-        
-        for(int i=1; i <= N; i++){
-            dist[i] = -1;
-        }
-        
-        dist[start] = 0;
-        int ret = 0;
-
-        while(!Q.isEmpty()){
-            int x = Q.poll();
-            ret += dist[x];
-
-            for(int y : arr[x]){
-                if(dist[y] != -1) continue; 
-
-                dist[y] = dist[x]+1;
-                Q.add(y);
-            }
-        }
-
-        return ret;
-    }
-
-    public static void pro(){
-        int minV = bfs(1), minIdx = 1;
-        for(int i = 2; i <= N ; i++){
-            int v = bfs(i);
-            if(minV > v){
-                minV = v ;
-                minIdx = i;
-            }
-        }
-        System.out.println(minIdx);
-    }
-
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         input();
         pro();
+        output();
     }
 
-    static class FastReader {
-        BufferedReader br;
-        StringTokenizer st;
+    private static int N, M;
+    private static List<List<Integer>> ADJ;
 
-        public FastReader() {
-            br = new BufferedReader(new InputStreamReader(System.in));
+    private static void input() {
+        N = inputProcessor.nextInt(); // 유저 수
+        M = inputProcessor.nextInt(); // 친구 관계 수
+
+        ADJ = new ArrayList<>();
+        for (int i = 0; i <= N; i++) {
+            ADJ.add(new ArrayList<>());
         }
 
-        public FastReader(String s) throws FileNotFoundException {
-            br = new BufferedReader(new FileReader(new File(s)));
+        for (int i = 1; i <= M; i++) {
+            int from = inputProcessor.nextInt();
+            int to = inputProcessor.nextInt();
+
+            ADJ.get(from).add(to);
+            ADJ.get(to).add(from);
+        }
+    }
+
+    private static void pro() {
+        int numbers = 0;
+        int result = Integer.MAX_VALUE;
+        for (int i = 1; i <= N; i++) {
+            int kevin = bfs(i);
+
+            if (kevin < result) {
+                result = kevin;
+                numbers = i;
+            }
         }
 
-        String next() {
+        sb.append(numbers);
+    }
+
+    private static int bfs(int start) {
+        Deque<Integer> que = new ArrayDeque<>();
+        que.add(start);
+
+        int[] dist = new int[N + 1];
+        Arrays.fill(dist, Integer.MAX_VALUE);
+        dist[start] = 0;
+
+        while (!que.isEmpty()) {
+            int cur = que.poll();
+
+            for (int child : ADJ.get(cur)) {
+                if (dist[child] != Integer.MAX_VALUE) continue;
+
+                if (dist[child] > dist[cur] + 1) {
+                    dist[child] = dist[cur] + 1;
+                    que.add(child);
+                }
+            }
+        }
+
+        int sum = 0;
+        for (int i = 1; i <= N; i++) {
+            if (i == start) continue;
+
+            sum += dist[i];
+        }
+
+        return sum;
+    }
+
+    private static void output() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
+    }
+
+    private static class InputProcessor {
+        private BufferedReader br;
+        private StringTokenizer st;
+
+        public InputProcessor() {
+            this.br = new BufferedReader(new InputStreamReader(System.in));
+        }
+
+        public String next() {
             while (st == null || !st.hasMoreElements()) {
                 try {
                     st = new StringTokenizer(br.readLine());
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }
+
             return st.nextToken();
         }
 
-        int nextInt() {
+        public String nextLine() {
+            String result = "";
+
+            try {
+                result = br.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return result;
+        }
+
+        public int nextInt() {
             return Integer.parseInt(next());
         }
 
-        long nextLong() {
+        public long nextLong() {
             return Long.parseLong(next());
         }
-
-        double nextDouble() {
-            return Double.parseDouble(next());
-        }
-
-        String nextLine() {
-            String str = "";
-            try {
-                str = br.readLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            return str;
-        }
     }
-
+    
 }
