@@ -2,20 +2,11 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-   static StringBuilder sb = new StringBuilder();
+  static StringBuilder sb = new StringBuilder();
 
     static int N, M, K;
-
-    static int[][] DIRECTION = {
-                {-1, -1}, {-1, 0}, {-1, 1},
-                {0, -1}, {0, 1},
-                {1, -1}, {1, 0}, {1, 1}
-    };
-
-    static char[][] DATA;
-
-    static List<String> query = new ArrayList<>();
+    static char[][] wordMatrix;
+    static List<String> queries = new ArrayList<>();
 
     static Map<String, Integer> wordMap = new HashMap<>();
 
@@ -23,69 +14,67 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
-        K = Integer.parseInt(st.nextToken());
+        N = Integer.parseInt(st.nextToken()); // 행
+        M = Integer.parseInt(st.nextToken()); // 열
+        K = Integer.parseInt(st.nextToken()); // 신이 좋아하는 문자열의 길이
 
-        DATA = new char[N + 1][M + 1];
-
-        for(int i = 1; i <= N; i++) {
+        wordMatrix = new char[N][M];
+        for(int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
-            char[] txt = st.nextToken().toCharArray();
-            for(int j = 1; j <= M; j++) {
-                DATA[i][j] = txt[j - 1];
+            char[] words = st.nextToken().toCharArray();
+            for(int j = 0; j < M; j++) {
+                wordMatrix[i][j] = words[j];
             }
         }
 
         for(int i = 1; i <= K; i++) {
-            query.add(br.readLine());
+            queries.add(br.readLine()); // 신이 좋아하는 문자열
         }
     }
 
     static int getX(int fromX, int toX) {
         int result = fromX + toX;
-        if(result < 1) result = N;
-        else if(result > N) result = 1;
+        if(result < 0) result = N - 1;
+        else if(result >= N) result = 0;
 
         return result;
     }
 
     static int getY(int fromY, int toY) {
         int result = fromY + toY;
-        if(result < 1) result = M;
-        else if(result > M) result = 1;
+        if(result < 0) result = M - 1;
+        else if(result >= M) result = 0;
 
         return result;
     }
 
-    static void rec(int x, int y, String txt, int len) {
-        if(wordMap.containsKey(txt)) {
-            wordMap.put(txt, wordMap.get(txt) + 1);
+    static int[][] DIR = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {1, -1}, {-1, 1}, {1, 1}, {-1, -1}};
+    static void rec(int x, int y, int len, String word) {
+        if(wordMap.containsKey(word)) {
+            wordMap.put(word, wordMap.get(word) + 1);
         } else {
-            wordMap.put(txt, 1);
+            wordMap.put(word, 1);
         }
 
         if(len == 5) return;
 
         for(int i = 0; i < 8; i++) {
-            int dx = getX(x, DIRECTION[i][0]);
-            int dy = getY(y, DIRECTION[i][1]);
+            int dx = getX(x, DIR[i][0]);
+            int dy = getY(y, DIR[i][1]);
 
-            rec(dx, dy, txt + DATA[dx][dy], len + 1);
+            rec(dx, dy, len + 1, word + wordMatrix[dx][dy]);
         }
-
     }
 
     static void pro() {
-
-        for(int i = 1; i <= N; i++) {
-            for(int j = 1; j <= M; j++) {
-                rec(i, j, DATA[i][j] + "", 1);
+        for(int i = 0; i < N; i++) {
+            for(int j = 0; j < M; j++) {
+                rec(i, j, 1, wordMatrix[i][j] + "");
             }
         }
 
-        for(String q : query) {
-            sb.append(wordMap.getOrDefault(q, 0)).append("\n");
+        for(String query : queries) {
+            sb.append(wordMap.getOrDefault(query, 0)).append("\n");
         }
 
         System.out.println(sb);
