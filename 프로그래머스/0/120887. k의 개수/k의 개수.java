@@ -1,5 +1,17 @@
+import java.lang.*;
 class Solution {
     public int solution(int i, int j, int k) {
+        StringBuilder sb = new StringBuilder();
+        for(int a = i; a <= j; a++) {
+            sb.append(a);
+        }
+        
+        String numbers = sb.toString();
+        
+        return numbers.length() - numbers.replace(k + "", "").length();
+    }
+    
+     public int solve(int i, int j, int k) {
         int answer = 0;
         
         for(int x = i; x <= j; x++) {
