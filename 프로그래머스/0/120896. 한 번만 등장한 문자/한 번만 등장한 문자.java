@@ -1,20 +1,16 @@
-import java.lang.StringBuilder;
+import java.util.stream.*;
+import java.util.*;
+import java.util.function.*;
 
 class Solution {
     public String solution(String s) {
-        int[] alphabet = new int[27];
-        for(char c : s.toCharArray()) {
-            alphabet[c - 'a'] += 1;
-        }
-        
-        StringBuilder sb = new StringBuilder();
-        for(int i = 0; i <= 26; i++) {
-            if(alphabet[i] == 1) {
-                char c = (char) (i + 'a');
-                sb.append(c);
-            }   
-        }
-        
-        return sb.toString();
+        return Stream.of(s.split(""))
+            .collect(Collectors.toMap(Function.identity(), e -> 1, Integer::sum))
+            .entrySet()
+            .stream()
+            .filter(entry -> entry.getValue() == 1)
+            .map(Map.Entry::getKey)
+            .sorted()
+            .collect(Collectors.joining());
     }
 }
