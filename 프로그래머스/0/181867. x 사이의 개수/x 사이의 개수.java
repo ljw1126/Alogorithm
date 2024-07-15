@@ -1,6 +1,17 @@
 import java.util.*;
 class Solution {
     public int[] solution(String myString) {
+        String[] tokens = myString.split("x", -1); // 끝 빈 문자열 포함
+        
+        int[] answer = new int[tokens.length];
+        for(int i = 0; i < tokens.length; i++) {
+            answer[i] = tokens[i].length();
+        }
+        
+        return answer;
+    }
+    
+    private int[] solve(String myString) {
         
         List<Integer> result = new ArrayList<>();
         int length = myString.length();
@@ -11,7 +22,6 @@ class Solution {
             }
             
             result.add(R - L);
-            System.out.println(L + "," + R);
             
             L = R;
         }
