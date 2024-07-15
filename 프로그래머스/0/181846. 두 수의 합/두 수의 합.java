@@ -1,5 +1,14 @@
+import java.math.BigInteger;
+
 class Solution {
     public String solution(String a, String b) {
+        BigInteger _a = new BigInteger(a);
+        BigInteger _b = new BigInteger(b);
+        BigInteger sum = _a.add(_b);
+        return sum.toString();
+    }
+    
+    private String solve(String a, String b) {
         int L = a.length() - 1;
         int R = b.length() - 1;
         
@@ -28,7 +37,6 @@ class Solution {
             else carry = 0;
         }
         
-        System.out.println(carry);
         while(R >= 0) {
             char c = b.charAt(R--);
             int sum = (c - '0') + carry;
