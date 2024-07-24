@@ -50,7 +50,7 @@ class Solution {
             }
         }
         
-        return Math.max(dp[1][n][0], dp[1][n][1]);
+        return dp[1][n][1];
     }
     
     private int calculate(int a, String op, int b) {
