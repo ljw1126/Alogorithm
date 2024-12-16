@@ -2,9 +2,11 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
     private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
+
+    private static int N, M;
+    private static int[] DATA;
 
     public static void main(String[] args) throws IOException {
         input();
@@ -12,52 +14,45 @@ public class Main {
         output();
     }
 
-    private static int N, M;
-    private static int[] SELECTED, DATA;
-
     private static void input() {
-        N = inputProcessor.nextInt(); // 1 ~ N
-        M = inputProcessor.nextInt(); // 개수
+        N = inputProcessor.nextInt();
+        M = inputProcessor.nextInt();
 
-        DATA = new int[N + 1];
-        for (int i = 1; i <= N; i++) {
-            DATA[i] = inputProcessor.nextInt();
+        DATA = new int[N];
+        for (int i = 0; i < N; i++) {
+            int v = inputProcessor.nextInt();
+            DATA[i] = v;
         }
 
-        SELECTED = new int[M + 1];
-        Arrays.sort(DATA, 1, N + 1);
+        Arrays.sort(DATA);
     }
 
     private static void pro() {
-        rec(0);
+        int[] selected = new int[M];
+        rec(0, selected);
     }
 
-    private static void rec(int cnt) {
-        if (cnt == M) {
-            appendResult();
+    private static void rec(int count, int[] selected) {
+        if (count == M) {
+            for (int i = 0; i < M; i++) {
+                sb.append(selected[i]).append(" ");
+            }
+            sb.append("\n");
             return;
         }
 
-        int last = 0;
-        for (int i = 1; i <= N; i++) {
-            if (DATA[i] == last) continue;
+        int prev = -1;
+        for (int i = 0; i < N; i++) {
+            if (prev == DATA[i]) continue;
 
-            last = DATA[i];
-            SELECTED[cnt] = DATA[i];
+            prev = DATA[i];
+            selected[count] = DATA[i];
 
-            rec(cnt + 1);
+            rec(count + 1, selected);
 
-            SELECTED[cnt] = -1;
+            selected[count] = -1;
         }
     }
-
-    private static void appendResult() {
-        for (int i = 0; i < M; i++) {
-            sb.append(SELECTED[i]).append(" ");
-        }
-        sb.append("\n");
-    }
-
 
     private static void output() throws IOException {
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
@@ -67,8 +62,8 @@ public class Main {
     }
 
     private static class InputProcessor {
-        BufferedReader br;
-        StringTokenizer st;
+        private BufferedReader br;
+        private StringTokenizer st;
 
         public InputProcessor() {
             this.br = new BufferedReader(new InputStreamReader(System.in));
@@ -87,14 +82,15 @@ public class Main {
         }
 
         public String nextLine() {
-            String input = "";
+            String result = "";
+
             try {
-                input = br.readLine();
+                result = br.readLine();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
-            return input;
+            return result;
         }
 
         public int nextInt() {
@@ -104,7 +100,6 @@ public class Main {
         public long nextLong() {
             return Long.parseLong(next());
         }
-
     }
     
 }
