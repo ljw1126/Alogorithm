@@ -51,21 +51,17 @@ public class Main {
             }
         }
 
-        List<Integer> result = new ArrayList<>();
+        boolean check = false;
         for (int i = 1; i <= N; i++) {
             if (dist[i] == K) {
-                result.add(i);
+                sb.append(i).append("\n");
+                check = true;
             }
         }
 
-        if (result.isEmpty()) {
+        if (!check) {
+            sb.setLength(0);
             sb.append(-1);
-            return;
-        }
-
-        Collections.sort(result);
-        for (int r : result) {
-            sb.append(r).append("\n");
         }
     }
 
