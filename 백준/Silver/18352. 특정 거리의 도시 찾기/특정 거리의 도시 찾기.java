@@ -2,8 +2,7 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-    private static StringBuilder sb = new StringBuilder();
+   private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
     public static void main(String[] args) {
@@ -13,7 +12,7 @@ public class Main {
     }
 
     private static int N, M, K, X;
-    private static List<List<Integer>> ADJ;
+    private static List<Integer>[] ADJ;
 
     private static void input() {
         N = inputProcessor.nextInt(); // 도시의 개수 (노드)
@@ -21,15 +20,15 @@ public class Main {
         K = inputProcessor.nextInt(); // 거리 정보
         X = inputProcessor.nextInt(); // 출발 도시
 
-        ADJ = new ArrayList<>();
+        ADJ = new ArrayList[N + 1];
         for (int i = 0; i <= N; i++) {
-            ADJ.add(new ArrayList<>());
+            ADJ[i] = new ArrayList<>();
         }
 
         for (int i = 1; i <= M; i++) {
             int from = inputProcessor.nextInt();
             int to = inputProcessor.nextInt();
-            ADJ.get(from).add(to);
+            ADJ[from].add(to);
         }
     }
 
@@ -38,19 +37,15 @@ public class Main {
         queue.add(X);
 
         int[] dist = new int[N + 1];
-        Arrays.fill(dist, Integer.MAX_VALUE);
+        Arrays.fill(dist, -1);
         dist[X] = 0;
-
-        boolean[] visited = new boolean[N + 1];
-        visited[X] = true;
 
         while (!queue.isEmpty()) {
             int cur = queue.poll();
 
-            for (int next : ADJ.get(cur)) {
-                if (visited[next]) continue;
+            for (int next : ADJ[cur]) {
+                if (dist[next] != -1) continue;
 
-                visited[next] = true;
                 dist[next] = dist[cur] + 1;
                 queue.add(next);
             }
