@@ -2,8 +2,7 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-    private static StringBuilder sb = new StringBuilder();
+     private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
     public static void main(String[] args) {
@@ -13,46 +12,40 @@ public class Main {
     }
 
     private static int N;
-    private static int[][] DP_TABLE;
+    private static int[][] DATA;
 
     private static void input() {
         N = inputProcessor.nextInt();
 
-        DP_TABLE = new int[N][N];
+        DATA = new int[N][N];
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < i + 1; j++) {
-                DP_TABLE[i][j] = inputProcessor.nextInt();
+                DATA[i][j] = inputProcessor.nextInt();
             }
         }
     }
 
     private static void pro() {
-        bottomUp();
+        int[][] dp = new int[N][N];
+        for (int i = 0; i < N; i++) {
+            Arrays.fill(dp[i], -1);
+        }
+        for (int i = 0; i < N; i++) {
+            dp[N - 1][i] = DATA[N - 1][i];
+        }
+
+        sb.append(topDown(0, 0, dp));
     }
 
-    private static void bottomUp() {
-        for (int i = 1; i < N; i++) {
-            for (int j = 0; j < i + 1; j++) {
-                if (j == 0) {
-                    int v1 = DP_TABLE[i - 1][0];
-                    DP_TABLE[i][j] += v1;
-                } else if (j == i) {
-                    int v2 = DP_TABLE[i - 1][j - 1];
-                    DP_TABLE[i][j] += v2;
-                } else {
-                    int v1 = DP_TABLE[i - 1][j - 1];
-                    int v2 = DP_TABLE[i - 1][j];
-                    DP_TABLE[i][j] += Math.max(v1, v2);
-                }
-            }
-        }
+    private static int topDown(int row, int col, int[][] dp) {
+        if (row == N - 1) return dp[row][col];
+        if (dp[row][col] != -1) return dp[row][col];
 
-        int result = 0;
-        for (int i = 0; i < N; i++) {
-            result = Math.max(result, DP_TABLE[N - 1][i]);
-        }
+        int v1 = topDown(row + 1, col, dp);
+        int v2 = topDown(row + 1, col + 1, dp);
+        int max = Math.max(v1, v2);
 
-        sb.append(result);
+        return dp[row][col] = DATA[row][col] + max;
     }
 
     private static void output() {
