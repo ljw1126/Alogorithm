@@ -2,7 +2,8 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    private static StringBuilder sb = new StringBuilder();
+    
+     private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
     public static void main(String[] args) {
@@ -12,18 +13,16 @@ public class Main {
     }
 
     private static int N;
-    private static int[][] DATA;
+    private static int[] T, P;
 
     private static void input() {
         N = inputProcessor.nextInt();
-        DATA = new int[N + 2][2];
+        T = new int[N + 1];
+        P = new int[N + 1];
 
         for (int i = 1; i <= N; i++) {
-            int t = inputProcessor.nextInt(); // 상담 완료 걸리는 기간
-            int p = inputProcessor.nextInt(); // 상담 완료시 받을 수 있는 금액
-
-            DATA[i][0] = t;
-            DATA[i][1] = p;
+            T[i] = inputProcessor.nextInt();
+            P[i] = inputProcessor.nextInt();
         }
     }
 
@@ -32,16 +31,22 @@ public class Main {
         int max = 0;
 
         for (int i = N; i > 0; i--) {
-            int time = DATA[i][0] + i;
-            if (time <= N + 1) {
-                dp[i] = Math.max(max, DATA[i][1] + dp[time]);
+            int day = T[i] + i;
+
+            if (day <= N + 1) {
+                dp[i] = Math.max(max, dp[day] + P[i]);
                 max = dp[i];
             } else {
                 dp[i] = max;
             }
         }
 
-        sb.append(max);
+        int result = 0;
+        for (int i = 1; i <= N; i++) {
+            result = Math.max(result, dp[i]);
+        }
+
+        sb.append(result);
     }
 
     private static void output() {
