@@ -12,44 +12,43 @@ public class Main {
         output();
     }
 
-    private static final int MAX_COST = 10_000_001;
-    private static int N, M;
-    private static int[][] FLOYED;
-
+    private static final int INF = 10_000_001;
+    private static int n, m;
+    private static int[][] dist;
+    
     private static void input() {
-        N = inputProcessor.nextInt();
-        M = inputProcessor.nextInt();
-        FLOYED = new int[N + 1][N + 1];
+        n = inputProcessor.nextInt(); // 도시의 개수(노드)
+        m = inputProcessor.nextInt(); // 버스의 개수(간선)
 
-        for (int i = 1; i <= N; i++) {
-            Arrays.fill(FLOYED[i], MAX_COST);
-            FLOYED[i][i] = 0;
+        dist = new int[n + 1][n + 1];
+        for(int i = 1; i <= n; i++) {
+            Arrays.fill(dist[i], INF);
         }
 
-        for (int i = 1; i <= M; i++) {
-            int from = inputProcessor.nextInt();
-            int to = inputProcessor.nextInt();
-            int cost = inputProcessor.nextInt();
+        for(int i = 1; i <= m; i++) {
+            int a = inputProcessor.nextInt();
+            int b = inputProcessor.nextInt();
+            int c = inputProcessor.nextInt();
 
-            FLOYED[from][to] = Math.min(FLOYED[from][to], cost);
+            dist[a][b] = Math.min(dist[a][b], c);
         }
     }
 
     private static void pro() {
-        for (int k = 1; k <= N; k++) {
-            for (int i = 1; i <= N; i++) {
-                for (int j = 1; j <= N; j++) {
+        for(int k = 1; k <= n; k++) {
+            for (int i = 1; i <= n; i++) {
+                for (int j = 1; j <= n; j++) {
                     if (i == j) continue;
 
-                    FLOYED[i][j] = Math.min(FLOYED[i][j], FLOYED[i][k] + FLOYED[k][j]);
+                    dist[i][j] = Math.min(dist[i][j], dist[i][k] + dist[k][j]);
                 }
             }
         }
 
-        for (int i = 1; i <= N; i++) {
-            for (int j = 1; j <= N; j++) {
-                if (FLOYED[i][j] == MAX_COST) sb.append(0).append(" ");
-                else sb.append(FLOYED[i][j]).append(" ");
+        for (int i = 1; i <= n; i++) {
+            for (int j = 1; j <= n; j++) {
+                if(dist[i][j] == INF) sb.append(0).append(" ");
+                else sb.append(dist[i][j]).append(" ");
             }
             sb.append("\n");
         }
