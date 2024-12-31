@@ -44,9 +44,7 @@ class Solution {
                 return 1;
             } else if(this.failRate > o.failRate) {
                 return -1;
-            } else if(this.failRate == o.failRate) {
-                return 0;
-            }
+            } 
             
             return this.no - o.no; 
         }
