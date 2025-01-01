@@ -3,116 +3,150 @@ import java.io.*;
 
 public class Main {
     
-   static int N, L, R;
+    private static StringBuilder sb = new StringBuilder();
+    private static InputProcessor inputProcessor = new InputProcessor();
 
-    static int[][] WORLD, GROUP_INFO;
-
-    static int[][] DIRECTION = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-    static void input() throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
-
-        N = Integer.parseInt(st.nextToken()); // N * N 크기의 땅
-        L = Integer.parseInt(st.nextToken());
-        R = Integer.parseInt(st.nextToken());
-
-        GROUP_INFO = new int[N + 1][N + 1];
-
-        WORLD = new int[N + 1][N + 1];
-        for(int r = 1; r <= N; r++) {
-            st = new StringTokenizer(br.readLine());
-            for(int c = 1; c <= N; c++) {
-                WORLD[r][c] = Integer.parseInt(st.nextToken());
-            }
-        }
-
-        br.close();
+    public static void main(String[] args) {
+        input();
+        pro();
+        output();
     }
 
-    static class Country {
-        int x;
-        int y;
+    private static int N, L, R;
+    private static int[][] country;
+    
+    private static void input() {
+        N = inputProcessor.nextInt();
+        L = inputProcessor.nextInt();
+        R = inputProcessor.nextInt();
 
-        public Country(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-    }
-
-    static void bfs(int startX, int startY, int groupNumber) {
-        Queue<Country> que = new LinkedList<>();
-        que.add(new Country(startX, startY));
-        GROUP_INFO[startX][startY] = groupNumber;
-
-        List<Country> union = new ArrayList<>();
-        union.add(new Country(startX, startY));
-
-        int cnt = 1;
-        int sum = WORLD[startX][startY];
-
-        while(!que.isEmpty()) {
-            Country c = que.poll();
-            int x = c.x;
-            int y = c.y;
-
-            for(int i = 0; i < 4; i++) {
-                int nx = x + DIRECTION[i][0];
-                int ny = y + DIRECTION[i][1];
-
-                if(nx < 1 || ny < 1 || nx > N || ny > N) continue;
-                if(GROUP_INFO[nx][ny] != -1) continue;
-
-                int diff = Math.abs(WORLD[x][y] - WORLD[nx][ny]);
-                if(L <= diff && diff <= R) {
-                    GROUP_INFO[nx][ny] = groupNumber;
-                    que.add(new Country(nx, ny));
-
-                    union.add(new Country(nx, ny));
-                    cnt += 1;
-                    sum += WORLD[nx][ny];
-                }
-            }
-        }
-
-        int avg = sum / cnt;
-        for(Country c : union) {
-            WORLD[c.x][c.y] = avg;
-        }
-    }
-
-    static void initGroupInfo() {
+        country = new int[N + 1][N + 1];
         for(int i = 1; i <= N; i++) {
             for(int j = 1; j <= N; j++) {
-               GROUP_INFO[i][j] = -1;
+                country[i][j] = inputProcessor.nextInt();
             }
         }
     }
 
-    static void pro() {
-        int days = 0;
+    private static void pro() {
+        int result = 0;
         while(true) {
-            initGroupInfo();
-
-            int groupNumber = 0;
+            int groupNo = 0;
+            int[][] groups = new int[N + 1][N + 1];
             for(int i = 1; i <= N; i++) {
                 for(int j = 1; j <= N; j++) {
-                    if(GROUP_INFO[i][j] == -1) {
-                        bfs(i, j, groupNumber);
-                        groupNumber += 1;
+                    if(groups[i][j] == 0) {
+                        groupNo += 1;
+                        bfs(i, j, groupNo, groups);
                     }
                 }
             }
 
-            if(groupNumber == N * N) break;
-            else days += 1;
+            if(groupNo == N * N) break;
+
+            result += 1;
         }
 
-        System.out.println(days);
+        // 결과 출력
+        sb.append(result);
     }
 
-    public static void main(String[] args) throws Exception {
-        input();
-        pro();
+    private static final int[][] DIR = {
+            {1, 0},
+            {0, 1},
+            {-1, 0},
+            {0, -1}
+    };
+    private static void bfs(int startX, int startY, int groupNo, int[][] groups) {
+        Deque<int[]> que = new ArrayDeque<>();
+        que.add(new int[] {startX, startY});
+
+        groups[startX][startY] = groupNo;
+
+        List<int[]> union = new ArrayList<>();
+        union.add(new int[] {startX, startY});
+
+        int sum = country[startX][startY];
+        while(!que.isEmpty()) {
+            int[] cur = que.poll();
+            int x = cur[0];
+            int y = cur[1];
+
+            for(int i = 0; i < 4; i++) {
+                int dx = x + DIR[i][0];
+                int dy = y + DIR[i][1];
+
+                if(dx < 1 || dy < 1 || dx > N || dy > N) continue;
+                if(groups[dx][dy] != 0) continue;
+
+                int diff = Math.abs(country[x][y] - country[dx][dy]);
+                if(L <= diff && diff <= R) {
+                    int[] next = new int[] {dx, dy};
+                    que.add(next);
+
+                    union.add(next);
+                    sum += country[dx][dy];
+                    groups[dx][dy] = groupNo;
+                }
+            }
+        }
+
+        if(union.size() == 1) return;
+
+        int avg = sum / union.size();
+        for(int[] u : union) {
+            country[u[0]][u[1]] = avg;
+        }
+    }
+
+    private static void output() {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
+            bw.write(sb.toString());
+            bw.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static class InputProcessor {
+        private BufferedReader br;
+        private StringTokenizer st;
+
+        public InputProcessor() {
+            this.br = new BufferedReader(new InputStreamReader(System.in));
+        }
+
+        public String next() {
+            while (st == null || !st.hasMoreElements()) {
+                try {
+                    st = new StringTokenizer(br.readLine());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            return st.nextToken();
+        }
+
+        public String nextLine() {
+            String result = "";
+
+            try {
+                result = br.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return result;
+        }
+
+        public int nextInt() {
+            return Integer.parseInt(next());
+        }
+
+        public long nextLong() {
+            return Long.parseLong(next());
+        }
     }
     
 }
