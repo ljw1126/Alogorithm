@@ -13,47 +13,47 @@ public class Main {
     }
 
     private static int N;
-    private static String[][] SCHOOL;
-    private static List<BLANK> BLANKS;
-    private static List<TEACHER> TEACHERS;
-    private static boolean RESULT;
+    private static String[][] school;
+    private static List<Blank> blanks;
+    private static List<Teacher> teachers;
+    private static boolean result;
 
     private static void input() {
         N = inputProcessor.nextInt();
-        SCHOOL = new String[N + 1][N + 1];
+        school = new String[N + 1][N + 1];
 
-        BLANKS = new ArrayList<>();
-        TEACHERS = new ArrayList<>();
+        blanks = new ArrayList<>();
+        teachers = new ArrayList<>();
         for (int i = 1; i <= N; i++) {
             for (int j = 1; j <= N; j++) {
                 String v = inputProcessor.next();
-                SCHOOL[i][j] = v;
+                school[i][j] = v;
 
                 if ("T".equals(v)) {
-                    TEACHERS.add(new TEACHER(i, j, -1));
+                    teachers.add(new Teacher(i, j, -1));
                 } else if ("X".equals(v)) {
-                    BLANKS.add(new BLANK(i, j));
+                    blanks.add(new Blank(i, j));
                 }
             }
         }
     }
 
-    private static class BLANK {
+    private static class Blank {
         private final int x;
         private final int y;
 
-        public BLANK(int x, int y) {
+        public Blank(int x, int y) {
             this.x = x;
             this.y = y;
         }
     }
 
-    private static class TEACHER {
-        private int x;
-        private int y;
+    private static class Teacher {
+        private final int x;
+        private final int y;
         private final int dir;
 
-        public TEACHER(int x, int y, int dir) {
+        public Teacher(int x, int y, int dir) {
             this.x = x;
             this.y = y;
             this.dir = dir;
@@ -62,25 +62,23 @@ public class Main {
 
     private static void pro() {
         createDummy(0, 0);
-        sb.append(RESULT ? "YES" : "NO");
+        sb.append(result ? "YES" : "NO");
     }
 
     private static void createDummy(int idx, int cnt) {
-        if (RESULT) return;
+        if (result) return;
         if (cnt == 3) {
-            if (survive()) {
-                RESULT = true;
-            }
+            result = survive();
             return;
         }
 
-        if (idx >= BLANKS.size()) return;
+        if (idx >= blanks.size()) return;
 
-        BLANK blank = BLANKS.get(idx);
-        SCHOOL[blank.x][blank.y] = "O";
+        Blank blank = blanks.get(idx);
+        school[blank.x][blank.y] = "O";
         createDummy(idx + 1, cnt + 1);
 
-        SCHOOL[blank.x][blank.y] = "X";
+        school[blank.x][blank.y] = "X";
         createDummy(idx + 1, cnt);
     }
 
@@ -92,15 +90,15 @@ public class Main {
     };
 
     private static boolean survive() {
-        Deque<TEACHER> queue = new ArrayDeque<>();
-        for (TEACHER t : TEACHERS) {
+        Deque<Teacher> queue = new ArrayDeque<>();
+        for (Teacher t : teachers) {
             for (int i = 0; i < 4; i++) {
-                queue.add(new TEACHER(t.x, t.y, i));
+                queue.add(new Teacher(t.x, t.y, i));
             }
         }
 
         while (!queue.isEmpty()) {
-            TEACHER cur = queue.poll();
+            Teacher cur = queue.poll();
             int x = cur.x;
             int y = cur.y;
             int i = cur.dir;
@@ -109,10 +107,10 @@ public class Main {
             int dy = y + DIR[i][1];
 
             if (dx < 1 || dy < 1 || dx > N || dy > N) continue;
-            if ("S".equals(SCHOOL[dx][dy])) return false;
-            if ("O".equals(SCHOOL[dx][dy])) continue;
+            if ("S".equals(school[dx][dy])) return false;
+            if ("O".equals(school[dx][dy])) continue;
 
-            queue.add(new TEACHER(dx, dy, i));
+            queue.add(new Teacher(dx, dy, i));
         }
 
         return true;
