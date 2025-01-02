@@ -1,57 +1,56 @@
 import java.util.*;
-import java.io.*;
 
 class Solution {
-    private static final int INF = 9;
-    
-    private int N, RESULT, LEN;
+    private int answer, len, _n;
     private int[] WEAK, DIST;
     
     public int solution(int n, int[] weak, int[] dist) {
-        N = n;
-        WEAK = weak;
-        DIST = dist;
-        RESULT = INF;
-        LEN = dist.length;
+        answer = Integer.MAX_VALUE;
         
-        Arrays.sort(DIST); // 오름차순 정렬
+        _n = n;
+        WEAK = weak;
+        len = WEAK.length;
+        DIST = dist;
+        Arrays.sort(DIST);
+        
         for(int i = 0; i < WEAK.length; i++) {
-            rec(1, i, 0);
+            rec(i, 1, 0);
         }
         
-        return RESULT == INF ? -1 : RESULT;
+        return answer == Integer.MAX_VALUE ? -1 : answer;
     }
     
-    private void rec(int count, int position, long visited) {
-        if(count > DIST.length) return;
-        if(count >= RESULT) return;
+    private void rec(int cur, int used, int visited) {
+        if(used > DIST.length) return; // 모든 사람을 다 써도 안 되는 경우 
+        if(used >= answer) return; // 결과값보다 크다면
         
-        for(int i = 0; i < WEAK.length; i++) {
-            int next = (position + i) % WEAK.length;
-            int diff = WEAK[next] - WEAK[position];
+        for(int i = 0; i < len; i++) {
+            int next = (cur + i) % len;
+            int diff = WEAK[next] - WEAK[cur];
             
-            if(next < position) {
-                diff += N;
+            if(cur > next) {
+                diff += _n;
             }
             
-            if(diff > DIST[DIST.length - count]) {
+            if(DIST[DIST.length - used] < diff) {
                 break;
-            }
-            
-            visited |= (1 << next); // 방문 표시
+            }            
+                
+            visited |= (1 << next);
         }
         
-        if(visited == ((1 << WEAK.length) - 1)) {
-            RESULT = count;
+        
+        // 다 방문한 경우
+        if(visited == (1 << len) - 1) {
+            answer = Math.min(answer, used);
             return;
         }
         
-        // 아직 다 방문 하지 않았다면
-        for(int i = 0; i < WEAK.length; i++) {
+        // 아직 방문이 필요한 경우
+        for(int i = 0; i < len; i++) {
             if((visited & (1 << i)) != 0) continue;
             
-            rec(count + 1, i, visited);
+            rec(i, used + 1, visited);
         }
     }
-    
 }
