@@ -1,64 +1,61 @@
-import java.util.*;
+import java.io.*;
+
 class Solution {
     public String solution(String p) {
-        return dfs(p);
+        return rec(p);
     }
     
-    private String dfs(String s) {
-        if(s.isEmpty()) return s;
+    private String rec(String w) {
+        if(w.equals("")) return w;
         
-        int cnt = 0;
         int idx = 0;
-        for(; idx < s.length(); idx++) {
-            char c = s.charAt(idx);
+        int parentheses = 0;
+        for(char c : w.toCharArray()) {
+            if(c == '(') parentheses += 1;
+            else parentheses -= 1;
             
-            if(c == '(') cnt += 1;
-            else cnt -= 1;
-            
-            if(cnt == 0) {
+            if(parentheses == 0) {
                 break;
             }
+            
+            idx += 1;
         }
         
-    
-        String u = "";
-        String v = "";
-        if(idx < s.length()) {
-            u = s.substring(0, idx + 1);
-            v = s.substring(idx + 1);
-        } else {
-            u = s;
-        }
+        String u = w.substring(0, idx + 1);
+        String v = rec(w.substring(idx + 1));
         
-        if(isValid(u)) {
-            return u + dfs(v);
+        // 문자열 u가 올바른 괄호 문자열이라면
+        if(check(u)) {
+            return u + v;
         } 
         
-        String next = "(";
-        next += dfs(v);
-        next += ")";
-        for(int i = 1; i <= u.length() - 2; i++) {
-            next += (u.charAt(i) == ')' ? '(' : ')');
-        }
-        
-        return next;
+        // 문자열 u가 올바른 괄호 문자열이 아니라면
+        return convertText(u, v);
     }
     
-    private boolean isValid(String t) {
-        if(t.isEmpty()) return true;
+    private boolean check(String u) {
+        if(u.isEmpty()) return true;
         
-        int result = 0;
-        for(int i = 0; i < t.length(); i++) {
-            char c = t.charAt(i);
-            if(c == '(') {
-                result += 1;
-            } else if(c == ')' && result > 0) {
-                result -= 1;
-            } else {
-                return false;
-            }
+        int count = 0;
+        for(char c : u.toCharArray()) {
+            if(c == '(') count += 1;
+            else if(--count < 0) return false;
         }
         
-        return result == 0;
+        return true;
+    }
+    
+    private String convertText(String u, String v) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("(")
+            .append(v)
+            .append(")");
+    
+        for(int i = 1; i < u.length() - 1; i++) {
+            char c = u.charAt(i);
+            sb.append(c == '(' ? ")" : "(");
+        }
+        
+        return sb.toString();
     }
 }
