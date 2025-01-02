@@ -113,28 +113,23 @@ class Solution {
             result.add(new Robot(dx1, dy1, dx2, dy2, dist + 1));
         }
         
+        int[] nums = new int[] {-1, 1};
         if(robot.isHosizontal()) { 
             // 위, 아래로 회전 가능(4가지 경우)
-            if(maps[x1 - 1][y1] == 0 && maps[x2 - 1][y2] == 0) {
-                result.add(new Robot(x1 - 1, y1, x1, y1, dist + 1));
-                result.add(new Robot(x2 - 1, y2, x2, y2, dist + 1));
-            }
-            
-            if(maps[x1 + 1][y1] == 0 && maps[x2 + 1][y2] == 0) {
-                result.add(new Robot(x1, y1, x1 + 1, y1, dist + 1));
-                result.add(new Robot(x2, y2, x2 + 1, y2, dist + 1));
+            for(int i = 0; i < 2; i++) {
+               if(maps[x1 + nums[i]][y1] == 0 && maps[x2 + nums[i]][y2] == 0) {
+                 result.add(new Robot(x1 + nums[i], y1, x1, y1, dist + 1));
+                 result.add(new Robot(x2 + nums[i], y2, x2, y2, dist + 1));   
+               }
             }
         }
         
         if(robot.isVertical()) {
-            if(maps[x1][y1 - 1] == 0 && maps[x2][y2 - 1] == 0) {
-                result.add(new Robot(x1, y1 - 1, x1, y1, dist + 1));
-                result.add(new Robot(x2, y2 - 1, x2, y2, dist + 1));
-            }
-            
-            if(maps[x1][y1 + 1] == 0 && maps[x2][y2 + 1] == 0) {
-                result.add(new Robot(x1, y1, x1, y1 + 1, dist + 1));
-                result.add(new Robot(x2, y2, x2, y2 + 1, dist + 1));
+            for(int i = 0; i < 2; i++) {
+               if(maps[x1][y1 + nums[i]] == 0 && maps[x2][y2 + nums[i]] == 0) {
+                 result.add(new Robot(x1, y1 + nums[i], x1, y1, dist + 1));
+                 result.add(new Robot(x2, y2 + nums[i], x2, y2, dist + 1));   
+               }
             }
         }
         
