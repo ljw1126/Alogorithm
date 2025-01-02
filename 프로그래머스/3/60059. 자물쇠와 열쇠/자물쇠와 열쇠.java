@@ -1,87 +1,87 @@
-import java.util.*;
 class Solution {
+    private int[][] _key;
+    private int[][] _lock;
+    
     public boolean solution(int[][] key, int[][] lock) {
+        _key = key;
+        _lock = lock;
+        int m = key.length; // key
+        int n = lock.length; // lock
+
         boolean answer = false;
-        
-        int M = key[0].length; // 돌기를 찾고
-        int N = lock[0].length; // 홈을 찾고
+        loop1 :
+        for(int i = 0; i < 4; i++) {
 
-        int[][] rotated = new int[M][M];
-        for(int i = 0; i < M; i++) {
-            for(int j = 0; j < M; j++) {
-                rotated[i][j] = key[i][j];
-            }
-        }
+            // 이동한다
+            for(int x = -40; x <= 40; x++) {
+                for(int y = -40; y <= 40; y++) {
+                    // 열쇠를 자물쇠에 끼워본다
+                    pushKey(x, y, m, n);
 
-        // 회전
-        out:
-        for (int r = 0; r < 4; r++) {
-            rotated = rotate(rotated, M);
-
-            // 이동
-            for (int row = -N; row < N; row++) {
-                for (int col = -N; col < N; col++) {
-                    // 열쇠를 회전 후 이동 시킨 값을 자물쇠에 합산
-                    matchKey(rotated, row, col, lock, N, M);
-
-                    // 자물쇠가 모두 1인지 확인 (맞으면 종료)
-                    if(isUnlock(lock, N)) {
+                    if(unlock(n)) { // 모든 자물쇠 영역이 1인가
                         answer = true;
-                        break out;
+                        break loop1;
                     }
 
-                    removeKey(rotated, row, col, lock, N, M);
+                    // 열쇠를 자물쇠에서 뺀다
+                    pollKey(x, y, m, n);
                 }
             }
+
+            if(i < 3) {
+                _key = rotate(_key, m); // 회전한다
+            }
         }
-        
+
         return answer;
     }
     
-    private static void matchKey(int[][] rotated, int x, int y, int[][] lock, int n, int m) {
-        for(int i = 0; i < m; i++) {
-            for(int j = 0; j < m; j++) {
-                int dx = i + x;
-                int dy = j + y;
+    private void pushKey(int x, int y, int m, int n) {
+        for(int row = 0; row < m; row++) {
+            for(int col = 0; col < m; col++) {
+                int dx = row + x;
+                int dy = col + y;
 
+                // 자물쇠의 범위를 벗어나는 경우
                 if(dx < 0 || dy < 0 || dx >= n || dy >= n) continue;
 
-                lock[dx][dy] += rotated[i][j];
+                _lock[dx][dy] += _key[row][col];
             }
         }
     }
 
-    private static boolean isUnlock(int[][] lock, int n) {
+    private boolean unlock(int n) {
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < n; j++) {
-                if(lock[i][j] != 1) return false;
+                if(_lock[i][j] != 1) return false;
             }
         }
 
         return true;
     }
 
-    private static void removeKey(int[][] rotated, int x, int y, int[][] lock, int n, int m) {
-        for(int i = 0; i < m; i++) {
-            for(int j = 0; j < m; j++) {
-                int dx = i + x;
-                int dy = j + y;
+    private void pollKey(int x, int y, int m, int n) {
+        for(int row = 0; row < m; row++) {
+            for(int col = 0; col < m; col++) {
+                int dx = row + x;
+                int dy = col + y;
 
+                // 자물쇠의 범위를 벗어나는 경우
                 if(dx < 0 || dy < 0 || dx >= n || dy >= n) continue;
 
-                lock[dx][dy] -= rotated[i][j];
+                _lock[dx][dy] -= _key[row][col];
             }
         }
     }
 
-    private int[][] rotate(int[][] rotated, int m) {
-        int[][] result = new int[m][m];
+    private int[][] rotate(int[][] key, int m) {
+        int[][] temp = new int[m][m];
         for(int i = 0; i < m; i++) {
             for(int j = 0; j < m; j++) {
-                result[j][m - 1 - i] = rotated[i][j];
+                temp[i][j] = key[m - j - 1][i];
             }
         }
 
-        return result;
+        return temp;
     }
 }
