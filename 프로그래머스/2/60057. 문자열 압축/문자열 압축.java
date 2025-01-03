@@ -2,57 +2,43 @@ import java.util.*;
 import java.io.*;
 
 class Solution {
-    private static StringBuilder sb = new StringBuilder();
-    private String S;
+    
+    private StringBuilder sb = new StringBuilder();
+    
     public int solution(String s) {
         if(s.length() == 1) return 1;
         
         int answer = 1001;
-        S = s;
-
-        int half = s.length() / 2;
+        int half = s.length();
         for(int len = 1; len <= half; len++) {
-            String compressed = compress(len, sb);
+            String compressed = rec(s, len, 1);
             
-            answer = Math.min(answer, compressed.length());
-
+            answer = Math.min(answer, compressed.length());  
+            
             sb.setLength(0);
         }
         
         return answer;
     }
     
-    private String compress(int len, StringBuilder stringBuilder) {
-        int L = 0;
-        while(L <= S.length() - len) {
-            int R = L + len;
-            String base = S.substring(L, R);
-            int repeated = 1 + count(base, R, len);
-
-            if(repeated == 1) {
-                sb.append(base);
-            } else {
-                sb.append(repeated + base);
-            }
-
-            L += repeated * len;
+    private String rec(String s, int len, int repeat) {
+        if(s.length() < len) {
+            sb.append(s);
+            return sb.toString();
         }
-
-        if(L < S.length()) {
-            sb.append(S.substring(L));
+        
+        String pre = s.substring(0, len);
+        String post = s.substring(len);
+        
+        // 반복된다면
+        if(post.startsWith(pre)) {
+            return rec(post, len, repeat + 1);
         }
-
-        return sb.toString();
-    }
-
-    private int count(String t, int from, int len) {
-        if(from >= S.length()) return 0;
-
-        String remain = S.substring(from);
-        if(remain.startsWith(t)) {
-            return 1 + count(t, from + len, len);
-        }
-
-        return 0;
+        
+        // 반복되지 않는다면
+        if(repeat == 1) sb.append(pre);
+        else sb.append(String.valueOf(repeat).concat(pre));
+        
+        return rec(post, len, 1);
     }
 }
