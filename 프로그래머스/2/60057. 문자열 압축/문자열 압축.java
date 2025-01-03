@@ -6,10 +6,8 @@ class Solution {
     private StringBuilder sb = new StringBuilder();
     
     public int solution(String s) {
-        if(s.length() == 1) return 1;
-        
-        int answer = 1001;
-        int half = s.length();
+        int answer = s.length();
+        int half = s.length() / 2;
         for(int len = 1; len <= half; len++) {
             String compressed = rec(s, len, 1);
             
