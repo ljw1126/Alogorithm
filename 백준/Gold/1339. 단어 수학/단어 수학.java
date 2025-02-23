@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-   private static StringBuilder sb = new StringBuilder();
+    private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
     public static void main(String[] args) {
@@ -12,81 +12,37 @@ public class Main {
     }
 
     private static int n;
-    private static String[] words;
+    private static String[] texts;
 
     private static void input() {
         n = inputProcessor.nextInt();
 
-        words = new String[n];
+        texts = new String[n];
         for(int i = 0; i < n; i++) {
-            words[i] = inputProcessor.nextLine();
+            texts[i] = inputProcessor.nextLine();
         }
     }
 
     private static void pro() {
-        // 알파벳에 대한 가중치를 구한다
-        int[] weights = new int[27];
-        for(String word : words) {
-            int len = word.length();
-            for(char c : word.toCharArray()) {
-                weights[c - 'A'] += weight(len);
-                len -= 1;
-            }
-        }
+       int[] alphabet = new int[27];
+       for(String text: texts) {
+           int len = text.length();
+           for(char c : text.toCharArray()) {
+               alphabet[c - 'A'] += (int) Math.pow(10, --len);
+           }
+       }
 
-        List<Alphabet> alphabetList = new ArrayList<>();
-        for(int i = 0; i <= 26; i++) {
-            if(weights[i] == 0) continue;
+       Arrays.sort(alphabet); // 오름차순
+       int weight = 9;
+       int result = 0;
+       for(int i = 26; i >= 0; i--) {
+           if(alphabet[i] == 0) break;
 
-            alphabetList.add(new Alphabet(i, weights[i]));
-        }
+           result += (weight * alphabet[i]);
+           weight -= 1;
+       }
 
-        Collections.sort(alphabetList);
-
-        int[] alphabets = new int[26];
-        int c = 9;
-        for(Alphabet a : alphabetList) {
-            alphabets[a.idx] = c;
-            c -= 1;
-        }
-
-        int result = 0;
-        for(String word : words) {
-            int num = 0;
-            for(char w : word.toCharArray()) {
-                num *= 10;
-                num += alphabets[w - 'A'];
-            }
-
-            result += num;
-        }
-
-        sb.append(result);
-    }
-
-    private static class Alphabet implements Comparable<Alphabet> {
-        private final int idx;
-        private final int weight;
-
-        public Alphabet(int idx, int weight) {
-            this.idx = idx;
-            this.weight = weight;
-        }
-
-        // 내림차순
-        public int compareTo(Alphabet o) {
-            return o.weight - this.weight;
-        }
-    }
-
-
-    private static int weight(int len) {
-        int result = 1;
-        for(int i = 1; i <= len; i++) {
-            result *= 10;
-        }
-
-        return result;
+       sb.append(result);
     }
 
     private static void output() {
