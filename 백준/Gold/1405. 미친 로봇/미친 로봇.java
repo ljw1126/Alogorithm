@@ -12,39 +12,38 @@ public class Main {
         output();
     }
 
-    // 동, 서, 남, 북
-    private static final int[][] dir = {
+    private static int N;
+    private static double[] percentage; // 동서남북
+    private static double result;
+
+    private static void input() {
+        N = inputProcessor.nextInt();
+        percentage = new double[4];
+        for(int i = 0; i < 4; i++) {
+            int p = inputProcessor.nextInt();
+            percentage[i] = (double) p / 100;
+        }
+    }
+
+    private static void pro() {
+        boolean[][] maps = new boolean[31][31];
+        maps[15][15] = true;
+
+        rec(15, 15, 0, 1.0, maps);
+
+        sb.append(result);
+    }
+
+    private static int[][] dir = {
             {0, 1},
             {0, -1},
             {1, 0},
             {-1, 0}
     };
 
-    private static int n;
-    private static double[] percentage;
-    private static double result;
-
-    private static void input() {
-        n = inputProcessor.nextInt();
-
-        percentage = new double[4];
-        for(int i = 0; i < 4; i++) {
-            percentage[i] = inputProcessor.nextInt() * 0.01;
-        }
-    }
-
-    private static void pro() {
-        boolean[][] visited = new boolean[31][31];
-
-        visited[15][15] = true;
-        rec(15, 15, 0, visited, 1.0);
-
-        sb.append(result);
-    }
-    
-    private static void rec(int x, int y, int cnt, boolean[][] visited, double total) {
-        if(cnt == n) {
-            result += total;
+    private static void rec(int x, int y, int cnt, double value, boolean[][] maps) {
+        if(cnt == N) {
+            result += value;
             return;
         }
 
@@ -52,12 +51,12 @@ public class Main {
             int dx = x + dir[i][0];
             int dy = y + dir[i][1];
 
-            if(dx <= 0 || dy <= 0 || dx >= 30 || dy >= 30) continue;
-            if(visited[dx][dy]) continue;
+            if(dx < 1 || dy < 1 || dx >= 30 || dy >= 30) continue;
+            if(maps[dx][dy]) continue;
 
-            visited[dx][dy] = true;
-            rec(dx, dy, cnt + 1, visited, total * percentage[i]);
-            visited[dx][dy] = false;
+            maps[dx][dy] = true;
+            rec(dx, dy, cnt + 1, value * percentage[i], maps);
+            maps[dx][dy] = false;
         }
     }
 
