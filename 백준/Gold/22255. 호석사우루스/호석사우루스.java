@@ -39,14 +39,6 @@ public class Main {
     }
 
     private static void pro() {
-        /*int[][][] dist = new int[n + 1][m + 1][4];
-        for(int i = 1; i <= n; i++) {
-            for(int j = 1; j <= m; j++) {
-                Arrays.fill(dist[i][j], Integer.MAX_VALUE);
-            }
-        }
-
-        Arrays.fill(dist[sx][sy], 0);*/
         boolean[][][] visited = new boolean[n + 1][m + 1][3];
 
         Queue<Dinor> pq = new PriorityQueue<>();
@@ -63,11 +55,11 @@ public class Main {
 
             int start = 0;
             int end = 4;
-            if(cur.turn == 1) { // 위 아래
+            if(cur.turn == 1) {
                 end = 2;
             }
 
-            if(cur.turn == 2) { // 왼쪽 오른쪽
+            if(cur.turn == 2) {
                 start = 2;
             }
 
