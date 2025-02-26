@@ -2,63 +2,73 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
+    
     private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         input();
+        pro();
         output();
     }
 
     private static int Q;
-    private static long RESULT;
-    private static Map<String, Queue<Integer>> GORIL = new HashMap<>();
 
     private static void input() {
-        Q = inputProcessor.nextInt(); // 쿼리의 개수
-
-        for (int i = 1; i <= Q; i++) {
-            pro();
-        }
-
-        sb.append(RESULT);
+        Q = inputProcessor.nextInt();
     }
 
     private static void pro() {
-        int query = inputProcessor.nextInt();
-        String name = inputProcessor.next(); // 고릴라 이름
-        int kb = inputProcessor.nextInt(); // k개 정보를 가짐
+        long result = 0;
 
-        if (!GORIL.containsKey(name)) {
-            GORIL.put(name, new PriorityQueue<>(Comparator.reverseOrder()));
+        Map<String, Queue<Integer>> brokerMap = new HashMap<>();
+
+        while(Q > 0) {
+            int command = inputProcessor.nextInt();
+            String name = inputProcessor.next();
+
+            if(command == 1) {
+                int k = inputProcessor.nextInt();
+
+                if(!brokerMap.containsKey(name)) {
+                    brokerMap.put(name, new PriorityQueue<>(Comparator.reverseOrder()));
+                }
+
+                Queue<Integer> broker = brokerMap.get(name);
+                for(int i = 1; i <= k; i++) {
+                    int c = inputProcessor.nextInt();
+                    broker.add(c);
+                }
+            } else {
+                int b = inputProcessor.nextInt();
+                if(brokerMap.containsKey(name)) {
+                    Queue<Integer> broker = brokerMap.get(name);
+                    for(int i = 1; i <= b; i++) {
+                        if(broker.isEmpty()) break;
+
+                        result += broker.poll();
+                    }
+                }
+            }
+
+            Q -= 1;
         }
 
-        Queue<Integer> pq = GORIL.get(name);
-        if (query == 1) { // 정보를 얻은 고릴라
-            for (int i = 1; i <= kb; i++) {
-                int c = inputProcessor.nextInt();
-                pq.add(c);
-            }
-        } else { // 정보 구매
-            for (int i = 1; i <= kb; i++) {
-                if (pq.isEmpty()) break;
-
-                RESULT += pq.poll();
-            }
-        }
+        sb.append(result);
     }
 
-    private static void output() throws IOException {
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        bw.write(sb.toString());
-        bw.flush();
-        bw.close();
+    private static void output() {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
+            bw.write(sb.toString());
+            bw.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static class InputProcessor {
-        private StringTokenizer st;
         private BufferedReader br;
+        private StringTokenizer st;
 
         public InputProcessor() {
             this.br = new BufferedReader(new InputStreamReader(System.in));
@@ -77,15 +87,15 @@ public class Main {
         }
 
         public String nextLine() {
-            String input = "";
+            String result = "";
 
             try {
-                input = br.readLine();
+                result = br.readLine();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
-            return input;
+            return result;
         }
 
         public int nextInt() {
