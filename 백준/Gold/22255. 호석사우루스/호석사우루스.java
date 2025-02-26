@@ -2,122 +2,158 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-    static int N, M;
-    static int X1, Y1, X2, Y2; 
+   private static StringBuilder sb = new StringBuilder();
+    private static InputProcessor inputProcessor = new InputProcessor();
 
-    static int[][] board;
+    public static void main(String[] args) {
+        input();
+        pro();
+        output();
+    }
 
-    static int[][][] dir = {
-            {
-                {0, 1}, {0, -1}, {-1, 0}, {1, 0}
-            },
-            {
-                {-1, 0}, {1, 0}
-            },
-            {
-                {0, -1}, {0, 1}
-            }
+    private static int[][] DIR = {
+            {-1, 0},
+            {1, 0},
+            {0, 1},
+            {0, -1}
     };
+    private static int n, m, sx, sy, ex, ey;
+    private static int[][] board;
 
-    static void input() throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        N = Integer.parseInt(st.nextToken());
-        M = Integer.parseInt(st.nextToken());
+    private static void input() {
+        n = inputProcessor.nextInt(); // 행
+        m = inputProcessor.nextInt(); // 열
+        // 출발지, 도착지
+        sx = inputProcessor.nextInt();
+        sy = inputProcessor.nextInt();
+        ex = inputProcessor.nextInt();
+        ey = inputProcessor.nextInt();
 
-        st = new StringTokenizer(br.readLine());
-
-        X1 = Integer.parseInt(st.nextToken()); // 출발지
-        Y1 = Integer.parseInt(st.nextToken());
-        X2 = Integer.parseInt(st.nextToken()); // 도착지
-        Y2 = Integer.parseInt(st.nextToken());
-
-        board = new int[N + 1][M + 1];
-        for(int i = 1; i <= N; i++) {
-            st = new StringTokenizer(br.readLine());
-            for(int j = 1; j <= M; j++) {
-                board[i][j] = Integer.parseInt(st.nextToken());
+        board = new int[n + 1][m + 1];
+        for(int i = 1; i <= n; i++) {
+            for(int j = 1; j <= m; j++) {
+                board[i][j] = inputProcessor.nextInt();
             }
         }
     }
 
-    static class Dinosaur implements Comparable<Dinosaur> {
-        int x;
-        int y;
-        int turn;
-        int impact;
-
-        public Dinosaur(int x, int y, int turn, int impact) {
-            this.x = x;
-            this.y = y;
-            this.turn = turn;
-            this.impact = impact;
-        }
-
-        @Override
-        public int compareTo(Dinosaur other) {
-            return impact - other.impact;
-        }
-    }
-
-    static void bfs(int startX, int startY, int endX, int endY) {
-        Queue<Dinosaur> que = new PriorityQueue<>();
-        que.add(new Dinosaur(startX, startY, 0, 0));
-
-        // 초기화
-        int[][][] dist = new int[N + 1][M + 1][3];
-        for(int i = 1; i <= N; i++) {
-            for(int j = 1; j <= M; j++) {
+    private static void pro() {
+        /*int[][][] dist = new int[n + 1][m + 1][4];
+        for(int i = 1; i <= n; i++) {
+            for(int j = 1; j <= m; j++) {
                 Arrays.fill(dist[i][j], Integer.MAX_VALUE);
             }
         }
 
-        dist[startX][startY][0] = 0;
+        Arrays.fill(dist[sx][sy], 0);*/
+        boolean[][][] visited = new boolean[n + 1][m + 1][3];
 
-        // 실행
-        while(!que.isEmpty()) {
-            Dinosaur cur = que.poll();
-            int turn = cur.turn;
+        Queue<Dinor> pq = new PriorityQueue<>();
+        pq.add(new Dinor(sx, sy, 0, 1));
+        int result = -1;
 
-            if(dist[cur.x][cur.y][cur.turn] < cur.impact) continue;
-            if(cur.x == endX && cur.y == endY) {
+        while(!pq.isEmpty()) {
+            Dinor cur = pq.poll();
+
+            if(cur.x == ex && cur.y == ey) {
+                result = cur.dist;
                 break;
             }
 
-            int nextTurn = (turn + 1) % 3;
-            for(int i = 0; i < dir[nextTurn].length; i++) {
-                int dx = cur.x + dir[nextTurn][i][0];
-                int dy = cur.y + dir[nextTurn][i][1];
+            int start = 0;
+            int end = 4;
+            if(cur.turn == 1) { // 위 아래
+                end = 2;
+            }
 
-                if(dx < 1 || dy < 1 || dx > N || dy > M) continue;
+            if(cur.turn == 2) { // 왼쪽 오른쪽
+                start = 2;
+            }
+
+            for(int i = start; i < end; i++) {
+                int dx = cur.x + DIR[i][0];
+                int dy = cur.y + DIR[i][1];
+
+                if(dx < 1 || dx > n || dy < 1 || dy > m) continue;
                 if(board[dx][dy] == -1) continue;
+                if(visited[dx][dy][cur.turn]) continue;
 
-                if(cur.impact + board[dx][dy] < dist[dx][dy][nextTurn]) {
-                    dist[dx][dy][nextTurn] = cur.impact + board[dx][dy];
-                    que.add(new Dinosaur(dx, dy, nextTurn, dist[dx][dy][nextTurn]));
-                }
+                visited[dx][dy][cur.turn] = true;
+                pq.add(new Dinor(dx, dy, cur.dist + board[dx][dy], (cur.turn + 1) % 3));
             }
         }
 
-        int result = Integer.MAX_VALUE;
-        for(int k = 0; k < 3; k++) {
-            result = Math.min(result, dist[endX][endY][k]);
+
+        sb.append(result);
+    }
+
+    private static class Dinor implements Comparable<Dinor>{
+        private final int x;
+        private final int y;
+        private final int dist;
+        private final int turn;
+
+        public Dinor(int x, int y, int dist, int turn) {
+            this.x = x;
+            this.y = y;
+            this.dist = dist;
+            this.turn = turn;
         }
 
-        if(result == Integer.MAX_VALUE) result = -1;
-
-        System.out.println(result);
+        public int compareTo(Dinor o) {
+            return this.dist - o.dist;
+        }
     }
 
-    static void pro() {
-        bfs(X1, Y1, X2, Y2);
+    private static void output() {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
+            bw.write(sb.toString());
+            bw.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static void main(String[] args) throws Exception {
-        input();
-        pro();
+    private static class InputProcessor {
+        private BufferedReader br;
+        private StringTokenizer st;
+
+        public InputProcessor() {
+            this.br = new BufferedReader(new InputStreamReader(System.in));
+        }
+
+        public String next() {
+            while (st == null || !st.hasMoreElements()) {
+                try {
+                    st = new StringTokenizer(br.readLine());
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+
+            return st.nextToken();
+        }
+
+        public String nextLine() {
+            String result = "";
+
+            try {
+                result = br.readLine();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+
+            return result;
+        }
+
+        public int nextInt() {
+            return Integer.parseInt(next());
+        }
+
+        public long nextLong() {
+            return Long.parseLong(next());
+        }
     }
     
 }
