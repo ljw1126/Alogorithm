@@ -25,19 +25,20 @@ public class Main {
 
         long[] _dp = new long[N + 1];
 
-        int R = 1;
+        int R = 0;
         long maxleft = 0;
         int sum = 0;
         for(int L = 1; L <= N; L++) {
 
             maxleft = Math.max(maxleft, _dp[L - 1]);
 
-            while(sum < K && R <= N) {
-                sum += foods[R++];
+            while(sum < K && R + 1 <= N) {
+                R += 1;
+                sum += foods[R];
             }
 
             if(sum >= K) {
-                _dp[R - 1] = Math.max(_dp[R - 1], maxleft + (sum - K));
+                _dp[R] = Math.max(_dp[R], maxleft + (sum - K));
             }
 
             sum -= foods[L];
@@ -46,6 +47,7 @@ public class Main {
         long ans = 0;
         for(int i = 1; i<= N; i++) ans = Math.max(ans, _dp[i]);
 
+        
         System.out.println(ans);
     }
 
