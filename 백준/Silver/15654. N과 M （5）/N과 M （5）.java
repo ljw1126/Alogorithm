@@ -5,56 +5,56 @@ public class Main {
     private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
-    private static int N, M;
-    private static int[] DATA;
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         input();
         pro();
         output();
     }
 
+    private static int N, M;
+    private static int[] data;
+
     private static void input() {
         N = inputProcessor.nextInt();
         M = inputProcessor.nextInt();
-
-        DATA = new int[N];
-        for (int i = 0; i < N; i++) {
-            int v = inputProcessor.nextInt();
-            DATA[i] = v;
+        data = new int[N + 1];
+        for(int i = 1; i <= N; i++) {
+            data[i] = inputProcessor.nextInt();
         }
 
-        Arrays.sort(DATA);
+        Arrays.sort(data);
     }
 
     private static void pro() {
         int[] selected = new int[M];
-        rec(0, selected, 0);
+        rec(selected, 0, 0);
     }
 
-    private static void rec(int count, int[] selected, int flag) {
-        if (count == M) {
-            for (int i = 0; i < M; i++) {
+    private static void rec(int[] selected, int count, int flag) {
+        if(count == M) {
+            for(int i = 0; i < M; i++) {
                 sb.append(selected[i]).append(" ");
             }
             sb.append("\n");
             return;
         }
 
-        for (int i = 0; i < N; i++) {
-            if ((flag & (1 << i)) != 0) continue;
+        for(int i = 1; i <= N; i++) {
+            if((flag & (1 << i)) != 0) continue;
 
-            selected[count] = DATA[i];
-            rec(count + 1, selected, flag | 1 << i);
-            selected[count] = -1;
+            selected[count] = data[i];
+            rec(selected, count + 1, (flag | 1 << i));
+            selected[count] = 0;
         }
     }
 
-    private static void output() throws IOException {
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        bw.write(sb.toString());
-        bw.flush();
-        bw.close();
+    private static void output() {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
+            bw.write(sb.toString());
+            bw.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static class InputProcessor {
