@@ -6,57 +6,52 @@ public class Main {
     private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         input();
         pro();
         output();
     }
 
     private static int N, M;
-    private static int[] SELECTED;
 
     private static void input() {
-        N = inputProcessor.nextInt(); // 1 ~ N
-        M = inputProcessor.nextInt(); // 개수
-
-        SELECTED = new int[M];
+        N = inputProcessor.nextInt();
+        M = inputProcessor.nextInt();
     }
 
     private static void pro() {
-        rec(1, 0);
+        int[] selected = new int[M];
+        rec(1, selected, 0);
     }
 
-    private static void rec(int start, int cnt) {
-        if (cnt == M) {
-            appendResult();
+    private static void rec(int start, int[] selected, int count) {
+        if(count == M) {
+            for(int i = 0; i < M; i++) {
+                sb.append(selected[i]).append(" ");
+            }
+            sb.append("\n");
             return;
         }
 
-        for (int i = start; i <= N; i++) {
-            SELECTED[cnt] = i;
-            rec(i, cnt + 1);
-            SELECTED[cnt] = 0;
+        for(int i = start; i <= N; i++) {
+            selected[count] = i;
+            rec(i, selected, count + 1);
+            selected[count] = 0;
         }
     }
 
-    private static void appendResult() {
-        for (int i = 0; i < M; i++) {
-            sb.append(SELECTED[i]).append(" ");
+    private static void output() {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
+            bw.write(sb.toString());
+            bw.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
-        sb.append("\n");
-    }
-
-
-    private static void output() throws IOException {
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        bw.write(sb.toString());
-        bw.flush();
-        bw.close();
     }
 
     private static class InputProcessor {
-        BufferedReader br;
-        StringTokenizer st;
+        private BufferedReader br;
+        private StringTokenizer st;
 
         public InputProcessor() {
             this.br = new BufferedReader(new InputStreamReader(System.in));
@@ -75,14 +70,15 @@ public class Main {
         }
 
         public String nextLine() {
-            String input = "";
+            String result = "";
+
             try {
-                input = br.readLine();
+                result = br.readLine();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
 
-            return input;
+            return result;
         }
 
         public int nextInt() {
@@ -92,7 +88,6 @@ public class Main {
         public long nextLong() {
             return Long.parseLong(next());
         }
-
     }
     
 }
