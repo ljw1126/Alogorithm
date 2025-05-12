@@ -2,17 +2,16 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-    private static StringBuilder sb = new StringBuilder();
+   private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
-    private static int N, M;
-
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         input();
         pro();
         output();
     }
+
+    private static int N, M;
 
     private static void input() {
         N = inputProcessor.nextInt();
@@ -21,33 +20,34 @@ public class Main {
 
     private static void pro() {
         int[] selected = new int[M];
-
-        rec(0, 0, selected);
+        rec(0, selected, 0);
     }
 
-    private static void rec(int count, int flag, int[] selected) {
-        if (count == M) {
-            for (int i = 0; i < M; i++) {
-                sb.append(selected[i]).append(" ");
+    private static void rec(int idx, int[] selected, int flag) {
+        if(idx == M) {
+            for(int i = 0; i < M; i++) {
+                sb.append(selected[i]).append(' ');
             }
             sb.append("\n");
             return;
         }
 
-        for (int i = 1; i <= N; i++) {
-            if ((flag & (1 << i)) != 0) continue;
+        for(int i = 1; i <= N; i++) {
+            if((flag & (1 << i)) != 0) continue;
 
-            selected[count] = i;
-            rec(count + 1, flag | 1 << i, selected);
-            selected[count] = -1;
+            selected[idx] = i;
+            rec(idx + 1, selected, (flag | (1 << i)));
+            selected[idx] = 0;
         }
     }
 
-    private static void output() throws IOException {
-        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
-        bw.write(sb.toString());
-        bw.flush();
-        bw.close();
+    private static void output() {
+        try (BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out))) {
+            bw.write(sb.toString());
+            bw.flush();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static class InputProcessor {
