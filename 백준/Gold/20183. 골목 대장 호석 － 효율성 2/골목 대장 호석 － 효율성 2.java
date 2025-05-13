@@ -2,29 +2,30 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-    static int N, M, A, B;
-    static long C;
+    static int n, m, a, b;
 
-    static long INF = 100000000000001L;
+    static long c;
 
-    static List<Info>[] adj;
+    static List<Node>[] adj;
 
     static long[] dist;
 
-    static class Info implements Comparable<Info> { // 시작 점에서 to까지 dist만큼 걸린다
-        int idx;
-        long dist;
+    static long INF = 100000000000001L;
 
-        public Info(int idx, long dist) {
+    static class Node implements Comparable<Node> {
+        int idx;
+        long cost;
+
+        public Node(int idx, long cost) {
             this.idx = idx;
-            this.dist = dist;
+            this.cost = cost;
+
         }
 
         @Override
-        public int compareTo(Info o) {
-            if(dist > o.dist) return 1;
-            if(dist == o.dist) return 0;
+        public int compareTo(Node node) {
+            if(cost > node.cost) return 1;
+            else if(cost == node.cost) return 0;
             return -1;
         }
     }
@@ -33,66 +34,65 @@ public class Main {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
-        N = Integer.parseInt(st.nextToken()); // 교차로 개수 (노드 수)
-        M = Integer.parseInt(st.nextToken()); // 골목 개수 (간선 수)
-        A = Integer.parseInt(st.nextToken()); // 시작 노드
-        B = Integer.parseInt(st.nextToken()); // 노착 노드
-        C = Long.parseLong(st.nextToken());
+        n = Integer.parseInt(st.nextToken()); // 교차로 개수 (노드)
+        m = Integer.parseInt(st.nextToken()); // 골목 개수 (간선)
+        a = Integer.parseInt(st.nextToken()); // 시작 교차로
+        b = Integer.parseInt(st.nextToken()); // 도착 교차로
+        c = Long.parseLong(st.nextToken()); // 가진 돈
 
-        adj = new ArrayList[N + 1];
-        for(int i = 0; i <= N; i++) adj[i] = new ArrayList<>();
+        adj = new ArrayList[n + 1];
+        for(int i = 1; i <= n; i++) adj[i] = new ArrayList<>();
 
-        for(int i = 1; i <= M; i++) {
+        for(int i = 1; i <= m; i++) {
             st = new StringTokenizer(br.readLine());
             int from = Integer.parseInt(st.nextToken());
             int to = Integer.parseInt(st.nextToken());
-            long dist = Long.parseLong(st.nextToken());
+            long cost = Long.parseLong(st.nextToken());
 
-            adj[from].add(new Info(to, dist));
-            adj[to].add(new Info(from, dist));
+            adj[from].add(new Node(to, cost));
+            adj[to].add(new Node(from, cost));
         }
 
-        dist = new long[N + 1];
+        dist = new long[n + 1];
     }
 
     static boolean dijkstra(long limit) {
-        Queue<Info> que = new PriorityQueue<>();
-        que.add(new Info(A, 0));
+        Queue<Node> que = new PriorityQueue<>();
+        que.add(new Node(a, 0L));
 
         Arrays.fill(dist, INF);
-        dist[A] = 0;
+        dist[a] = 0L;
 
         while(!que.isEmpty()) {
-            Info cur = que.poll();
+            Node cur = que.poll();
 
-            if(dist[cur.idx] != cur.dist) continue;
+            if(dist[cur.idx] < cur.cost) continue;
 
-            for(Info next : adj[cur.idx]) {
-                if(limit < next.dist) continue;
-                if(dist[next.idx] > dist[cur.idx] + next.dist) {
-                    dist[next.idx] = dist[cur.idx] + next.dist;
-                    que.add(new Info(next.idx, dist[next.idx]));
+            for(Node next : adj[cur.idx]) {
+                if(next.cost > limit) continue;
+                if(dist[next.idx] > dist[cur.idx] + next.cost) {
+                    dist[next.idx] = dist[cur.idx] + next.cost;
+                    que.add(new Node(next.idx, dist[next.idx]));
                 }
             }
         }
 
-
-        return dist[B] <= C;
+        return dist[b] <= c;
     }
 
-    static void pro() { // 매개변수 탐색
-        long left = 1L;
-        long right = 1000000001L;
-        long ans = right;
-        while(left <= right) {
-           long mid = (left + right) / 2;
+    static void pro() {
+        long L = 1L;
+        long R = 1000000001L;
+        long ans = R;
+        while(L <= R) {
+            long mid = (L + R) / 2;
 
-           if(dijkstra(mid)) { // 최대 골목 비용을 만족하나
-               ans = mid;
-               right = mid - 1;
-           } else {
-               left = mid + 1;
-           }
+            if(dijkstra(mid)) {
+                ans = mid;
+                R = mid - 1;
+            } else {
+                L = mid + 1;
+            }
         }
 
         System.out.println(ans == 1000000001L ? -1 : ans);
