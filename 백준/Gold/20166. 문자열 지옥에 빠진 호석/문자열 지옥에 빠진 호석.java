@@ -2,10 +2,11 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-  static StringBuilder sb = new StringBuilder();
+    
+    static StringBuilder sb = new StringBuilder();
 
     static int N, M, K;
-    static char[][] wordMatrix;
+    static String[][] wordMatrix;
     static List<String> queries = new ArrayList<>();
 
     static Map<String, Integer> wordMap = new HashMap<>();
@@ -18,11 +19,11 @@ public class Main {
         M = Integer.parseInt(st.nextToken()); // 열
         K = Integer.parseInt(st.nextToken()); // 신이 좋아하는 문자열의 길이
 
-        wordMatrix = new char[N][M];
+        wordMatrix = new String[N][M];
         for(int i = 0; i < N; i++) {
-            st = new StringTokenizer(br.readLine());
-            char[] words = st.nextToken().toCharArray();
-            for(int j = 0; j < M; j++) {
+            String line = br.readLine();
+            String[] words = line.split("");
+            for(int j = 0; j < words.length; j++) {
                 wordMatrix[i][j] = words[j];
             }
         }
@@ -32,44 +33,34 @@ public class Main {
         }
     }
 
-    static int getX(int fromX, int toX) {
-        int result = fromX + toX;
-        if(result < 0) result = N - 1;
-        else if(result >= N) result = 0;
-
-        return result;
-    }
-
-    static int getY(int fromY, int toY) {
-        int result = fromY + toY;
-        if(result < 0) result = M - 1;
-        else if(result >= M) result = 0;
-
-        return result;
-    }
-
     static int[][] DIR = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}, {1, -1}, {-1, 1}, {1, 1}, {-1, -1}};
-    static void rec(int x, int y, int len, String word) {
+    static void rec(int x, int y, int depth, String word) {
+        
         if(wordMap.containsKey(word)) {
             wordMap.put(word, wordMap.get(word) + 1);
         } else {
             wordMap.put(word, 1);
         }
 
-        if(len == 5) return;
-
+        if(depth == 5) return;
+        
         for(int i = 0; i < 8; i++) {
-            int dx = getX(x, DIR[i][0]);
-            int dy = getY(y, DIR[i][1]);
+            int dx = x + DIR[i][0];
+            int dy = y + DIR[i][1];
 
-            rec(dx, dy, len + 1, word + wordMatrix[dx][dy]);
+            if(dx < 0) dx = N - 1;
+            if(dx >= N) dx = 0;
+            if(dy < 0) dy = M - 1;
+            if(dy >= M) dy = 0;
+
+            rec(dx, dy, depth + 1, word + wordMatrix[dx][dy]);
         }
     }
 
-    static void pro() {
+    static void pro() throws IOException {
         for(int i = 0; i < N; i++) {
             for(int j = 0; j < M; j++) {
-                rec(i, j, 1, wordMatrix[i][j] + "");
+                rec(i, j, 1, wordMatrix[i][j]);
             }
         }
 
@@ -77,7 +68,10 @@ public class Main {
             sb.append(wordMap.getOrDefault(query, 0)).append("\n");
         }
 
-        System.out.println(sb);
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
     }
 
     public static void main(String[] args) throws Exception {
