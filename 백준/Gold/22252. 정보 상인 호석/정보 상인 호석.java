@@ -2,7 +2,6 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
     private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
@@ -12,46 +11,37 @@ public class Main {
         output();
     }
 
-    private static int Q;
+    private static int q;
 
     private static void input() {
-        Q = inputProcessor.nextInt();
+        q = inputProcessor.nextInt(); // 쿼리 수
     }
 
     private static void pro() {
+        Map<String, Queue<Integer>> dataMap = new HashMap<>();
         long result = 0;
-
-        Map<String, Queue<Integer>> brokerMap = new HashMap<>();
-
-        while(Q > 0) {
-            int command = inputProcessor.nextInt();
+        for(int i = 1; i <= q; i++) {
+            int query = inputProcessor.nextInt();
             String name = inputProcessor.next();
+            int k = inputProcessor.nextInt();
 
-            if(command == 1) {
-                int k = inputProcessor.nextInt();
+            dataMap.computeIfAbsent(name, s -> new PriorityQueue<Integer>(Comparator.reverseOrder()));
 
-                if(!brokerMap.containsKey(name)) {
-                    brokerMap.put(name, new PriorityQueue<>(Comparator.reverseOrder()));
+            if(query == 1) { // 정보를 얻은 고릴라
+                Queue<Integer> pq = dataMap.get(name);
+                for(int j = 1; j <= k; j++) {
+                    pq.add(inputProcessor.nextInt());
                 }
 
-                Queue<Integer> broker = brokerMap.get(name);
-                for(int i = 1; i <= k; i++) {
-                    int c = inputProcessor.nextInt();
-                    broker.add(c);
-                }
-            } else {
-                int b = inputProcessor.nextInt();
-                if(brokerMap.containsKey(name)) {
-                    Queue<Integer> broker = brokerMap.get(name);
-                    for(int i = 1; i <= b; i++) {
-                        if(broker.isEmpty()) break;
-
-                        result += broker.poll();
-                    }
-                }
+                continue;
             }
 
-            Q -= 1;
+            Queue<Integer> pq = dataMap.get(name);
+            for(int j = 1; j <= k; j++) {
+                if(pq.isEmpty()) break;
+
+                result += pq.poll();
+            }
         }
 
         sb.append(result);
