@@ -2,7 +2,7 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-   private static StringBuilder sb = new StringBuilder();
+    private static StringBuilder sb = new StringBuilder();
     private static InputProcessor inputProcessor = new InputProcessor();
 
     public static void main(String[] args) {
@@ -11,113 +11,94 @@ public class Main {
         output();
     }
 
-    private static int n, m;
+    private static int n, m, result, maxValue;
     private static int[][] fields;
+    private static boolean[][] visited;
 
     private static void input() {
         n = inputProcessor.nextInt();
         m = inputProcessor.nextInt();
 
         fields = new int[n][m];
-        for(int i = 0; i < n; i++){
-            for(int j = 0; j < m; j++){
-                fields[i][j] = inputProcessor.nextInt();
-            }
-        }
-    }
-
-    // 기준점 좌표는 생략
-    private static int[][][] blocks = {
-        {
-            {0, 1}, {0, 2}, {0, 3}
-        }, // --
-        {
-            {1, 0}, {2, 0}, {3, 0}
-        }, // |
-        {
-            {0, 1}, {1, 0}, {1, 1}
-        }, // 네모
-        {
-            {1, 0}, {1, 1}, {2, 0}
-        }, // ㅏ (4개)
-        {
-            {0, 1}, {0, 2}, {1, 1}
-        }, // ㅜ
-        {
-            {1, 0}, {1, -1}, {2, 0}
-        }, // ㅓ
-        {
-            {0, 1}, {0, 2}, {-1, 1}
-        }, // ㅗ
-        {
-            {0, 1}, {1, 0}, {2, 0}
-        }, // r (4개), ㄴ (4개)
-        {
-            {0, 1}, {1, 1}, {2, 1}
-        },
-        {
-            {1, 0}, {2, 0}, {2, 1}
-        },
-        {
-            {1, 0}, {2, 0}, {2, -1}
-        },
-        {
-            {1, 0}, {1, 1}, {1, 2}
-        },
-        {
-            {0, 1}, {0, 2}, {1, 0}
-        },
-        {
-            {0, 1}, {0, 2}, {-1, 2}
-        },
-        {
-            {0, 1}, {0, 2}, {1, 2}
-        },
-        {
-            {1, 0}, {1, 1}, {2, 1}
-        }, // 마지막 블록
-        {
-            {0, 1}, {-1, 1}, {-1, 2}
-        },
-        {
-            {0, 1}, {1, 1}, {1, 2}
-        },
-        {
-            {1, 0}, {1, -1}, {2, -1}
-        }
-    };
-
-    private static void pro() {
-        int result = 0;
         for(int i = 0; i < n; i++) {
             for(int j = 0; j < m; j++) {
-                result = Math.max(result, calculate(i, j));
+                fields[i][j] = inputProcessor.nextInt();
+                maxValue = Math.max(maxValue, fields[i][j]);
+            }
+        }
+
+        visited = new boolean[n][m];
+    }
+
+    private static void pro() {
+        result = Integer.MIN_VALUE;
+
+        for(int i = 0; i < n; i++) {
+            for(int j = 0; j < m; j++) {
+                if(!visited[i][j]) {
+                    visited[i][j] = true;
+                    rec(i, j, fields[i][j], 1);
+                    visited[i][j] = false;
+                }
             }
         }
 
         sb.append(result);
     }
 
-    private static int calculate(int i, int j) {
-        int result = 0;
-        for(int[][] block : blocks) {
-            int sum = fields[i][j];
-            for(int[] b : block) {
-                int dx = i + b[0];
-                int dy = j + b[1];
+    private static class Node {
+        private int x;
+        private int y;
 
-                if(dx < 0 || dy < 0 || dx >= n || dy >= m) {
-                    sum = -1;
-                    break;
-                }
-
-                sum += fields[dx][dy];
-            }
-
-            result = Math.max(result, sum);
+        public Node(int x, int y) {
+            this.x = x;
+            this.y = y;
         }
 
-        return result;
+        @Override
+        public boolean equals(Object o) {
+            if (o == null || getClass() != o.getClass()) return false;
+            Node node = (Node) o;
+            return x == node.x && y == node.y;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(x, y);
+        }
+    }
+
+    private static final int[][] dir = {
+            {0, 1},
+            {0, -1},
+            {1, 0},
+            {-1, 0}
+    };
+
+    private static void rec(int x, int y, int sum, int depth) {
+        if(depth == 4) {
+            result = Math.max(result, sum);
+            return;
+        }
+        if(sum + (4 - depth) * maxValue < result) return;
+
+        for (int i = 0; i < 4; i++) {
+            int dx = x + dir[i][0];
+            int dy = y + dir[i][1];
+
+            if (dx < 0 || dy < 0 || dx >= n || dy >= m) continue;
+            if (visited[dx][dy]) continue;
+
+            if(depth == 2) {
+                visited[dx][dy] = true;
+                rec(x, y, sum + fields[dx][dy], depth + 1);
+                visited[dx][dy] = false;
+            }
+
+            visited[dx][dy] = true;
+            rec(dx, dy, sum + fields[dx][dy], depth + 1);
+            visited[dx][dy] = false;
+        }
     }
 
     private static void output() {
@@ -169,4 +150,5 @@ public class Main {
             return Long.parseLong(next());
         }
     }
+    
 }
