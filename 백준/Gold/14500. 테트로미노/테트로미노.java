@@ -46,28 +46,6 @@ public class Main {
         sb.append(result);
     }
 
-    private static class Node {
-        private int x;
-        private int y;
-
-        public Node(int x, int y) {
-            this.x = x;
-            this.y = y;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (o == null || getClass() != o.getClass()) return false;
-            Node node = (Node) o;
-            return x == node.x && y == node.y;
-        }
-
-        @Override
-        public int hashCode() {
-            return Objects.hash(x, y);
-        }
-    }
-
     private static final int[][] dir = {
             {0, 1},
             {0, -1},
@@ -80,7 +58,7 @@ public class Main {
             result = Math.max(result, sum);
             return;
         }
-        if(sum + (4 - depth) * maxValue < result) return;
+        if(sum + (4 - depth) * maxValue <= result) return;
 
         for (int i = 0; i < 4; i++) {
             int dx = x + dir[i][0];
