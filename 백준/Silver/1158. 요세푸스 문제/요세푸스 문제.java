@@ -18,36 +18,22 @@ public class Main {
     }
 
     private static void pro() throws IOException {
-        Deque<Integer> que = new ArrayDeque<>();
-        for(int i = 1; i <= n; i++) {
-            que.add(i);
-        }
-
-        int c = 0;
-        List<Integer> result = new ArrayList<>();
-        while(!que.isEmpty()) {
-            int cur = que.poll();
-            c += 1;
-
-            if(c == k) {
-                c = 0;
-                result.add(cur);
-                continue;
-            }
-
-            que.add(cur);
+        List<Integer> arr = new ArrayList<>();
+        for(int i = 1; i <= n; i++){
+            arr.add(i);
         }
 
         StringBuilder sb = new StringBuilder();
         sb.append("<");
-        for(int i = 0; i < result.size(); i++) {
-            if(i == result.size() - 1) {
-                sb.append(result.get(i));
-                continue;
-            }
-
-            sb.append(result.get(i)).append(", ");
+        int idx = 0;
+        while(arr.size() > 1) {
+            int next = (idx + k - 1) % arr.size();
+            sb.append(arr.get(next));
+            sb.append(", ");
+            arr.remove(next);
+            idx = next;
         }
+        sb.append(arr.get(0));
         sb.append(">");
 
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
