@@ -3,7 +3,7 @@ import java.io.*;
 
 public class Main {
     
-    private static StringBuilder sb = new StringBuilder();
+   private static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
         input();
@@ -27,23 +27,22 @@ public class Main {
             que.add(i);
         }
 
-        sb.append("<");
-
         int c = 0;
+        StringJoiner joiner = new StringJoiner(", ", "<", ">");
         while(!que.isEmpty()) {
             int cur = que.poll();
             c += 1;
 
             if(c == k) {
                 c = 0;
-                sb.append(cur).append(que.isEmpty() ? "" : ", ");
+                joiner.add(cur + "");
                 continue;
             }
 
             que.add(cur);
         }
 
-        sb.append(">");
+        sb.append(joiner);
     }
 
     private static void output() throws IOException {
