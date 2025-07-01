@@ -2,13 +2,9 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-   private static StringBuilder sb = new StringBuilder();
-
-    public static void main(String[] args) throws IOException {
+   public static void main(String[] args) throws IOException {
         input();
         pro();
-        output();
     }
 
     private static int n, k;
@@ -28,28 +24,35 @@ public class Main {
         }
 
         int c = 0;
-        StringJoiner joiner = new StringJoiner(", ", "<", ">");
+        List<Integer> result = new ArrayList<>();
         while(!que.isEmpty()) {
             int cur = que.poll();
             c += 1;
 
             if(c == k) {
                 c = 0;
-                joiner.add(cur + "");
+                result.add(cur);
                 continue;
             }
 
             que.add(cur);
         }
 
-        sb.append(joiner);
-    }
+        StringBuilder sb = new StringBuilder();
+        sb.append("<");
+        for(int i = 0; i < result.size(); i++) {
+            if(i == result.size() - 1) {
+                sb.append(result.get(i));
+                continue;
+            }
 
-    private static void output() throws IOException {
+            sb.append(result.get(i)).append(", ");
+        }
+        sb.append(">");
+
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
         bw.write(sb.toString());
         bw.flush();
         bw.close();
     }
-    
 }
