@@ -16,6 +16,8 @@ public class Main {
         while(!(input = br.readLine()).equals(".")) {
             sb.append(isBalanced(input) ? "yes" : "no").append("\n");
         }
+        
+        br.close();
     }
 
     private static boolean isBalanced(String input) {
