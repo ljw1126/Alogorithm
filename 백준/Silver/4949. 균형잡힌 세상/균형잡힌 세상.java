@@ -2,7 +2,6 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
     private static StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
@@ -15,43 +14,32 @@ public class Main {
 
         String input = "";
         while(!(input = br.readLine()).equals(".")) {
-            Deque<String> stack = new ArrayDeque<>();
-            boolean isPossible = true;
-            for(char c : input.trim().toCharArray()) {
-                if(c == '.') break;
-                if(Character.isAlphabetic(c)) {
-                    continue;
+            sb.append(isBalanced(input) ? "yes" : "no").append("\n");
+        }
+    }
+
+    private static boolean isBalanced(String input) {
+        Deque<Character> stack = new ArrayDeque<>();
+        for(char c : input.toCharArray()) {
+            if(c == '(' || c == '[') {
+                stack.push(c);
+            } else if(c == ')') {
+                if(stack.isEmpty() || stack.peek() != '(') {
+                    return false;
                 }
 
-                if(c == '(') {
-                    stack.push("(");
+                stack.pop();
+            } else if(c == ']') {
+                if(stack.isEmpty() || stack.peek() != '[') {
+                    return false;
                 }
 
-                if(c == ')') {
-                    if(!stack.isEmpty() && stack.peek().equals("(")) {
-                        stack.pop();
-                    } else {
-                        isPossible = false;
-                        break;
-                    }
-                }
-
-                if(c == '[') {
-                    stack.push("[");
-                }
-
-                if(c == ']') {
-                    if(!stack.isEmpty() && stack.peek().equals("[")) {
-                        stack.pop();
-                    } else {
-                        isPossible = false;
-                        break;
-                    }
-                }
+                stack.pop();
             }
 
-            sb.append(isPossible && stack.isEmpty() ? "yes" : "no").append("\n");
         }
+
+        return stack.isEmpty();
     }
 
 
