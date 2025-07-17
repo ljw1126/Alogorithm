@@ -1,76 +1,84 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Main {
     
-    static StringBuilder sb = new StringBuilder();
+    private static StringBuilder sb = new StringBuilder();
 
-    static int T, M, N, K, CNT;
+    public static void main(String[] args) throws IOException {
+        input();
+        output();
+    }
 
-    static int[][] FIELD;
-    static boolean[][] VISIT;
+    private static int n, m, k;
+    private static boolean[][] fields;
 
-    static int[][] DIRECTION = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
-    static void input() throws Exception {
+    private static void input() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
 
-        T = Integer.parseInt(st.nextToken()); // 테스트 케이스
-        while(T > 0) {
-            st = new StringTokenizer(br.readLine());
+        int t = Integer.parseInt(br.readLine());
 
-            M = Integer.parseInt(st.nextToken()); // 가로 길이
-            N = Integer.parseInt(st.nextToken()); // 세로 길이
-            K = Integer.parseInt(st.nextToken()); // 배추 심어진 위치 개수
+        while(t > 0) {
+            t -= 1;
 
-            FIELD = new int[M][N];
-            VISIT = new boolean[M][N];
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            m = Integer.parseInt(st.nextToken());
+            n = Integer.parseInt(st.nextToken());
+            k = Integer.parseInt(st.nextToken()); 
 
-            for(int i = 1; i <= K; i++) {
-                st = new StringTokenizer(br.readLine());
-                int x = Integer.parseInt(st.nextToken());
-                int y = Integer.parseInt(st.nextToken());
+            fields = new boolean[m][n];
+            for(int i = 0; i < k; i++) {
+                StringTokenizer st2 = new StringTokenizer(br.readLine());
+                int x = Integer.parseInt(st2.nextToken());
+                int y = Integer.parseInt(st2.nextToken());
 
-                FIELD[x][y] = 1;
+                fields[x][y] = true;
             }
 
             pro();
-
-            T -= 1;
         }
     }
 
-    static void dfs(int x, int y) {
-        VISIT[x][y] = true;
+    private static void pro() {
+        int count = 0;
+        for(int i = 0; i < m; i++) {
+            for(int j = 0; j < n; j++) {
+                if(!fields[i][j]) continue;
 
-        for(int i = 0; i < 4; i++) {
-            int nx = x + DIRECTION[i][0];
-            int ny = y + DIRECTION[i][1];
-
-            if(nx < 0 || ny < 0 || nx >= M || ny >= N) continue;
-            if(VISIT[nx][ny]) continue;
-            if(FIELD[nx][ny] == 0) continue;
-
-            dfs(nx, ny);
-        }
-    }
-
-    static void pro() {
-        CNT = 0;
-        for(int i = 0; i < M; i++) {
-            for(int j = 0; j < N; j++) {
-                if(!VISIT[i][j] && FIELD[i][j] == 1) {
-                    CNT += 1;
-                    dfs(i, j);
-                }
+                dfs(i, j);
+                count += 1;
             }
         }
-        sb.append(CNT).append("\n");
+
+        sb.append(count).append("\n");
     }
 
-    public static void main(String[] args) throws Exception {
-        input();
-        System.out.println(sb);
+    private static int[][] dir = {
+            {1, 0},
+            {0, 1},
+            {-1, 0},
+            {0, -1}
+    };
+
+    private static void dfs(int x, int y) {
+        fields[x][y] = false;
+
+        for(int i = 0; i < 4; i++) {
+            int dx = x + dir[i][0];
+            int dy = y + dir[i][1];
+
+            if(dx < 0 || dy < 0 || dx >= m || dy >= n) continue;
+            if(!fields[dx][dy]) continue;
+
+            dfs(dx, dy);
+        }
+    }
+
+    private static void output() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
     }
     
 }
