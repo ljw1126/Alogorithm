@@ -3,11 +3,7 @@ import java.io.*;
 
 public class Main {
     
-    static StringBuilder sb = new StringBuilder();
-    static InputProcessor inputProcessor = new InputProcessor();
-
-    static int N, M, A, B;
-    static List<List<Node>> ADJ;
+    private static final StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
         input();
@@ -15,69 +11,82 @@ public class Main {
         output();
     }
 
-    private static class Node implements Comparable<Node> {
-        int idx;
-        int cost;
+    private static int n, m, s, e;
+    private static List<List<Edge>> adj;
 
-        public Node(int idx, int cost) {
+    private static void input() throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        n = Integer.parseInt(br.readLine()); // 도시의 개수 (노드)
+        m = Integer.parseInt(br.readLine()); // 버스의 개수 (간선)
+
+        adj = new ArrayList<>();
+        for (int i = 0; i <= n; i++) {
+            adj.add(new ArrayList<>());
+        }
+
+        for (int i = 1; i <= m; i++) {
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            int from = Integer.parseInt(st.nextToken());
+            int to = Integer.parseInt(st.nextToken());
+            int cost = Integer.parseInt(st.nextToken());
+
+            adj.get(from).add(new Edge(to, cost));
+        }
+
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        s = Integer.parseInt(st.nextToken());
+        e = Integer.parseInt(st.nextToken());
+
+        br.close();
+    }
+
+    private static class Edge {
+        private int idx;
+        private int cost;
+
+        public Edge(int idx, int cost) {
             this.idx = idx;
             this.cost = cost;
         }
-
-        @Override
-        public int compareTo(Node other) {
-            return this.cost - other.cost; // 오름차순 정렬
-        }
-    }
-
-    private static void input() {
-        N = inputProcessor.nextInt();
-        M = inputProcessor.nextInt();
-
-        ADJ = new ArrayList<>();
-        for(int i = 0; i <= N; i++) { // 시작 조심
-            ADJ.add(new ArrayList<>());
-        }
-
-        for(int i = 1; i <= M; i++) {
-            int from = inputProcessor.nextInt();
-            int to = inputProcessor.nextInt();
-            int cost = inputProcessor.nextInt();
-
-            ADJ.get(from).add(new Node(to, cost));
-        }
-
-        A = inputProcessor.nextInt(); // 시작점
-        B = inputProcessor.nextInt(); // 도착지점
     }
 
     private static void pro() {
-        dijkstra(A, B);
-    }
-
-    private static void dijkstra(int a, int b) {
-        Queue<Node> que = new PriorityQueue<>();
-        que.add(new Node(a, 0));
-
-        int[] dist = new int[N + 1];
+        int[] dist = new int[n + 1];
         Arrays.fill(dist, Integer.MAX_VALUE);
-        dist[a] = 0;
 
-        while(!que.isEmpty()) {
-            Node cur = que.poll();
+        Queue<Info> pq = new PriorityQueue<>();
+        pq.add(new Info(s, 0));
+        dist[s] = 0;
 
-            if(dist[cur.idx] < cur.cost) continue;
+        while (!pq.isEmpty()) {
+            Info cur = pq.poll();
 
-            for(Node next : ADJ.get(cur.idx)) {
-                if(dist[cur.idx] + next.cost >= dist[next.idx]) continue;
+            if (cur.dist > dist[cur.idx]) continue;
+            if (cur.idx == e) continue;
 
-                dist[next.idx] = dist[cur.idx] + next.cost;
-                que.add(new Node(next.idx, dist[next.idx]));
+            for (Edge next : adj.get(cur.idx)) {
+                if (dist[next.idx] > dist[cur.idx] + next.cost) {
+                    dist[next.idx] = dist[cur.idx] + next.cost;
+                    pq.add(new Info(next.idx, dist[next.idx]));
+                }
             }
         }
 
-        // 결과 출력
-        sb.append(dist[b]);
+        sb.append(dist[e]);
+    }
+
+    private static class Info implements Comparable<Info> {
+        private int idx;
+        private int dist;
+
+        public Info(int idx, int dist) {
+            this.idx = idx;
+            this.dist = dist;
+        }
+
+        public int compareTo(Info o) {
+            return this.dist - o.dist;
+        }
     }
 
     private static void output() throws IOException {
@@ -85,43 +94,6 @@ public class Main {
         bw.write(sb.toString());
         bw.flush();
         bw.close();
-    }
-
-    private static class InputProcessor {
-        BufferedReader br;
-        StringTokenizer st;
-
-        public InputProcessor() {
-            this.br = new BufferedReader(new InputStreamReader(System.in));
-        }
-
-        public String next() {
-            while(st == null || !st.hasMoreElements()) {
-                st = new StringTokenizer(nextLine());
-            }
-
-            return st.nextToken();
-        }
-
-        public String nextLine() {
-            String input = "";
-
-            try {
-                input = br.readLine();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            return input;
-        }
-
-        public int nextInt() {
-            return Integer.parseInt(next());
-        }
-
-        public long nextLong() {
-            return Long.parseLong(next());
-        }
     }
     
 }
