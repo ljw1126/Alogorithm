@@ -3,52 +3,57 @@ import java.io.*;
 
 public class Main {
     
-static StringBuilder sb = new StringBuilder();
+    private static final StringBuilder sb = new StringBuilder();
 
-    static int N, Q;
+    public static void main(String[] args) throws IOException {
+        input();
+        pro();
+        output();
+    }
 
-    static boolean[] REAL_ESTATE;
+    private static int n, q;
+    private static int[] wanted;
+    private static boolean[] land;
 
-    static List<Integer> queries = new ArrayList<>();
-
-    static void input() throws Exception {
+    private static void input() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine());
 
-        N = Integer.parseInt(st.nextToken());
-        Q = Integer.parseInt(st.nextToken());
+        n = Integer.parseInt(st.nextToken()); // 땅의 개수
+        q = Integer.parseInt(st.nextToken()); // 오리의 수
 
-        REAL_ESTATE = new boolean[N + 1];
-
-        for(int i = 1; i <= Q; i++) {
-            queries.add(Integer.parseInt(br.readLine()));
+        wanted = new int[q];
+        for (int i = 0; i < q; i++) {
+            wanted[i] = Integer.parseInt(br.readLine());
         }
+
+        land = new boolean[n + 1];
     }
 
-    static void execute(int q) {
-        int idx = q;
-        int ans = 0;
-        while(idx != 0) {
-            if(REAL_ESTATE[idx]) {
-                ans = idx;
+    private static void pro() {
+        for (int w : wanted) {
+            int result = rec(w, Integer.MAX_VALUE);
+            if (result == -1) {
+                land[w] = true;
+                sb.append(0).append("\n");
+            } else {
+                sb.append(result).append("\n");
             }
+        }
+    }
 
-            idx /= 2;
+    private static int rec(int node, int owner) {
+        if (node < 1) {
+            return owner == Integer.MAX_VALUE ? -1 : owner;
         }
 
-        if(ans == 0) REAL_ESTATE[q] = true;
-
-        sb.append(ans).append("\n");
+        return rec(node / 2, land[node] ? node : owner);
     }
 
-    static void pro() {
-        for(int query : queries) execute(query);
-
-        System.out.println(sb);
-    }
-
-    public static void main(String[] args) throws Exception {
-        input();
-        pro();
+    private static void output() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
     }
 }
