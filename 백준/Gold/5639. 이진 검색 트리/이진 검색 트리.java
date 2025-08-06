@@ -1,60 +1,74 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Main {
-    
-  static StringBuilder sb = new StringBuilder();
+   private static final StringBuilder sb = new StringBuilder();
 
-    static Node ROOT;
+    public static void main(String[] args) throws IOException {
+        input();
+        pro();
+        output();
+    }
 
-    static class Node {
-        Node left;
-        Node right;
-        int value;
+    private static Node preOrder;
 
-        public Node(int value) {
-            this.value = value;
+    private static void input() throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+
+        preOrder = new Node(Integer.parseInt(br.readLine()));
+        while (true) {
+            String input = br.readLine();
+
+            if (input == null || input.isBlank()) break;
+
+            preOrder.add(Integer.parseInt(input));
+        }
+    }
+
+    private static class Node {
+        private final int no;
+        private Node left;
+        private Node right;
+
+        public Node(int no) {
+            this.no = no;
+            this.left = null;
+            this.right = null;
         }
 
-        public void insert(int value) {
-            if(this.value > value) {
-                if(this.left == null) this.left = new Node(value);
-                else this.left.insert(value);
-            } else {
-                if(this.right == null) this.right = new Node(value);
-                else this.right.insert(value);
+        public void add(int value) {
+            if (value < no) {
+                if (left == null) {
+                    left = new Node(value);
+                } else {
+                    left.add(value);
+                }
+            } else if (value > no) {
+                if (right == null) {
+                    right = new Node(value);
+                } else {
+                    right.add(value);
+                }
             }
         }
     }
 
-    static void input() throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-        while(true) {
-            String input = br.readLine();
-            if(input == null || "".equals(input)) break;
-
-            int value = Integer.parseInt(input);
-            if(ROOT == null) ROOT = new Node(value);
-            else ROOT.insert(value);
-        }
+    private static void pro() {
+        postOrder(preOrder);
     }
 
-    static void postOrder(Node node) {
-        if(node == null) return;
+    private static void postOrder(Node node) {
+        if (node == null) return;
 
         postOrder(node.left);
         postOrder(node.right);
-        sb.append(node.value).append("\n");
+        sb.append(node.no).append("\n");
     }
 
-    static void pro() {
-        postOrder(ROOT);
-        System.out.println(sb);
-    }
-
-    public static void main(String[] args) throws Exception {
-        input();
-        pro();
+    private static void output() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
     }
 }
