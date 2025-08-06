@@ -1,72 +1,83 @@
-import java.io.*;
 import java.util.*;
+import java.io.*;
 
 public class Main {
+    
+    private static final StringBuilder sb = new StringBuilder();
 
-   static int N, ROOT, REMOVE_NODE;
+    public static void main(String[] args) throws IOException {
+        input();
+        pro();
+        output();
+    }
 
-    static List<Integer>[] adj;
+    private static int n, removed, root;
+    private static List<List<Integer>> adj;
 
-    static int[] LEAF;
-
-    static void input() throws Exception {
+    private static void input() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
 
-        st = new StringTokenizer(br.readLine());
-        N = Integer.parseInt(st.nextToken());
+        n = Integer.parseInt(br.readLine());
 
-        adj = new ArrayList[N];
-        for(int i = 0; i < N; i++) adj[i] = new ArrayList<>();
+        adj = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            adj.add(new ArrayList<>());
+        }
 
-        st = new StringTokenizer(br.readLine());
-        for(int i = 0; i < N; i++) {
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < n; i++) {
             int parent = Integer.parseInt(st.nextToken());
-            if(parent == -1) {
-                ROOT = i;
+            if (parent == -1) {
+                root = i;
                 continue;
             }
 
-            adj[parent].add(i);
+            adj.get(parent).add(i);
         }
 
-        st = new StringTokenizer(br.readLine());
-        REMOVE_NODE = Integer.parseInt(st.nextToken());
-
-        LEAF = new int[N];
+        removed = Integer.parseInt(br.readLine()); // 지울 노드
     }
 
-    static void removeNode() {
-        for(int i = 0; i < N; i++) {
-            List<Integer> child = adj[i];
-            if(child.contains(REMOVE_NODE)) {
-                child.remove(child.indexOf(REMOVE_NODE));
-            }
-        }
-    }
 
-    static void dfs(int node) {
-        if(adj[node].isEmpty()) {
-            LEAF[node] = 1;
+    private static void pro() {
+        if (root == removed) {
+            sb.append(0);
             return;
         }
 
-        for(int child : adj[node]) {
-            dfs(child);
-            LEAF[node] += LEAF[child];
+        for (int i = 0; i < n; i++) {
+            if (i == removed) {
+                continue;
+            }
+
+            adj.get(i).remove((Integer) removed);
+        }
+
+        int[] acc = new int[n];
+        rec(root, -1, acc);
+
+        sb.append(acc[root]);
+    }
+
+    private static void rec(int node, int parent, int[] acc) {
+        if (adj.get(node).isEmpty()) {
+            acc[node] = 1;
+            return;
+        }
+
+        for (int child : adj.get(node)) {
+            if (child == parent) continue;
+
+            rec(child, node, acc);
+            acc[node] += acc[child];
         }
     }
 
-    static void pro() {
-        removeNode();
-
-        if(ROOT != REMOVE_NODE) dfs(ROOT);
-
-        System.out.println(LEAF[ROOT]);
+    private static void output() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
     }
-
-    public static void main(String[] args) throws Exception {
-        input();
-        pro();
-    }
+    
 }
