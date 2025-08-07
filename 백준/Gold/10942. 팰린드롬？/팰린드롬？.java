@@ -2,61 +2,70 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-     static StringBuilder sb = new StringBuilder();
+    private static StringBuilder sb = new StringBuilder();
 
-    static int N, M;
+    public static void main(String[] args) throws IOException {
+        input();
+        pro();
+        output();
+    }
 
-    static int[] A;
-    static boolean[][] DP;
+    private static int n, m;
+    private static int[] data;
+    private static int[][] query;
 
-    static void input() throws Exception {
+    private static void input() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        N = Integer.parseInt(br.readLine());
-
-        A = new int[N + 1];
+        n = Integer.parseInt(br.readLine());
 
         StringTokenizer st = new StringTokenizer(br.readLine());
-        for(int i = 1; i <= N; i++) {
-            A[i] = Integer.parseInt(st.nextToken());
+        data = new int[n + 1];
+        for(int i = 1; i <= n; i++) {
+            data[i] = Integer.parseInt(st.nextToken());
         }
 
-        pro();
-
-        M = Integer.parseInt(br.readLine());
-        for(int i = 1; i <= M; i++) {
-            st = new StringTokenizer(br.readLine());
-            int s = Integer.parseInt(st.nextToken());
-            int e = Integer.parseInt(st.nextToken());
-
-            sb.append(DP[s][e] ? 1 : 0).append("\n");
+        m = Integer.parseInt(br.readLine());
+        query = new int[m][2];
+        for(int i = 0; i < m; i++) {
+            StringTokenizer points = new StringTokenizer(br.readLine());
+            query[i][0] = Integer.parseInt(points.nextToken());
+            query[i][1] = Integer.parseInt(points.nextToken());
         }
     }
-    static void pro() {
-        DP = new boolean[N + 1][N + 1];
 
-        for(int i = 1; i <= N; i++) {
-            DP[i][i] = true;
+    private static void pro() {
+        boolean[][] phallendrome = new boolean[n + 1][n + 1];
+        for(int i = 1; i <= n; i++) {
+            phallendrome[i][i] = true;
         }
 
-        for(int i = 1; i < N; i++) {
-            if(A[i] == A[i + 1]) DP[i][i + 1] = true;
+        for(int i = 1; i <= n - 1; i++) {
+            if(data[i] == data[i + 1]) {
+                phallendrome[i][i + 1] = true;
+            }
         }
 
-        for(int len = 3; len <= N; len++) {
-            for(int i = 1; i <= (N - len + 1); i++) {
-                int j = i - 1 + len;
-                if(A[i] == A[j] && DP[i + 1][j - 1]) {
-                    DP[i][j] = true;
+
+        for(int len = 3; len <= n; len++) {
+            for(int i = 1; i <= n - len + 1; i++) {
+                int j = i + len - 1;
+                if(data[i] == data[j] && phallendrome[i + 1][j - 1]) {
+                    phallendrome[i][j] = true;
                 }
             }
         }
+
+        for(int[] q : query) {
+            sb.append(phallendrome[q[0]][q[1]] ? "1" : "0").append("\n");
+        }
     }
 
-    public static void main(String[] args) throws Exception {
-        input();
-        System.out.println(sb);
+    private static void output() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
     }
     
 }
