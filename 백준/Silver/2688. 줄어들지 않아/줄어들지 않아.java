@@ -3,45 +3,53 @@ import java.io.*;
 
 public class Main {
     
-    static StringBuilder sb = new StringBuilder();
+    private static final StringBuilder sb = new StringBuilder();
 
-    static int T, N;
-
-    static long[][] DP;
-
-    static long executeByTopDown(int depth, int last) {
-        if(depth == 1) return 1L;
-
-        if(DP[depth][last] != -1) return DP[depth][last];
-
-        long value = 0;
-        for(int i = last; i <= 9; i++) {
-            value += executeByTopDown(depth - 1, i);
-        }
-
-        return DP[depth][last] = value;
-    }
-
-    static void input() throws Exception {
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        T = Integer.parseInt(br.readLine());
-
-        DP = new long[65][10];
-        for(int i = 0; i <= 64; i++) Arrays.fill(DP[i], - 1);
-
-        while(T > 0) {
-            T -= 1;
-            N = Integer.parseInt(br.readLine());
-
-            long result = 0L;
-            for(int i = 0; i <= 9; i++) result += executeByTopDown(N, i);
-
-            sb.append(result).append("\n");
-        }
-    }
-
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         input();
-        System.out.println(sb);
+        output();
     }
+
+    private static int n;
+
+    private static void input() throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        int t = Integer.parseInt(br.readLine());
+        while (t > 0) {
+            t -= 1;
+
+            n = Integer.parseInt(br.readLine());
+
+            pro();
+        }
+    }
+
+    private static void pro() {
+
+        long[][] dp = new long[n + 1][10];
+        Arrays.fill(dp[1], 1);
+
+        for (int i = 2; i <= n; i++) {
+            for (int j = 0; j <= 9; j++) {
+                for (int k = j; k <= 9; k++) {
+                    dp[i][j] += dp[i - 1][k];
+                }
+            }
+        }
+
+        long result = 0;
+        for (int i = 0; i <= 9; i++) {
+            result += dp[n][i];
+        }
+
+        sb.append(result).append("\n");
+    }
+
+    private static void output() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
+    }
+    
 }
