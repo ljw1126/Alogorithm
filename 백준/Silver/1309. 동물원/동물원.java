@@ -3,12 +3,7 @@ import java.io.*;
 
 public class Main {
     
-    private static StringBuilder sb = new StringBuilder();
-    private static InputProcessor inputProcessor = new InputProcessor();
-
-    private static final int MOD = 9901;
-    private static int N;
-    private static int[] DP;
+    private static final StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
         input();
@@ -16,21 +11,28 @@ public class Main {
         output();
     }
 
-    private static void input() {
-        N = inputProcessor.nextInt();
-        DP = new int[N + 1];
+    private static final int MOD = 9901;
+    private static int n;
+
+    private static void input() throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        n = Integer.parseInt(br.readLine());
     }
 
     private static void pro() {
-        DP[0] = 1;
-        DP[1] = 3;
+        int[][] dp = new int[n + 1][3];
+        dp[1][0] = 1; // 아무것도 두지 않는 경우
+        dp[1][1] = 1; // 왼쪽에 두는 경우
+        dp[1][2] = 1; // 오른쪽에 두는 경우
 
-        for (int i = 2; i <= N; i++) {
-            DP[i] = 2 * DP[i - 1] + DP[i - 2];
-            DP[i] %= MOD;
+        for (int i = 2; i <= n; i++) {
+            dp[i][0] = (dp[i - 1][0] + dp[i - 1][1] + dp[i - 1][2]) % MOD;
+            dp[i][1] = (dp[i - 1][0] + dp[i - 1][2]) % MOD;
+            dp[i][2] = (dp[i - 1][0] + dp[i - 1][1]) % MOD;
         }
 
-        sb.append(DP[N]);
+        int result = (dp[n][0] + dp[n][1] + dp[n][2]) % MOD;
+        sb.append(result);
     }
 
     private static void output() throws IOException {
@@ -38,47 +40,6 @@ public class Main {
         bw.write(sb.toString());
         bw.flush();
         bw.close();
-    }
-
-    private static class InputProcessor {
-        BufferedReader br;
-        StringTokenizer st;
-
-        public InputProcessor() {
-            this.br = new BufferedReader(new InputStreamReader(System.in));
-        }
-
-        public String next() {
-            while (st == null || !st.hasMoreElements()) {
-                try {
-                    st = new StringTokenizer(br.readLine());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            return st.nextToken();
-        }
-
-        public String nextLine() {
-            String input = "";
-            try {
-                input = br.readLine();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            return input;
-        }
-
-        public int nextInt() {
-            return Integer.parseInt(next());
-        }
-
-        public long nextLong() {
-            return Long.parseLong(next());
-        }
-
     }
     
 }
