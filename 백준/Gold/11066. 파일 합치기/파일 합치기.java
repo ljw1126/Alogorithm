@@ -2,66 +2,68 @@ import java.util.*;
 import java.io.*;
 
 public class Main {
-    
-    static StringBuilder sb = new StringBuilder();
+   private static StringBuilder sb = new StringBuilder();
 
-    static int T, K;
+    public static void main(String[] args) throws IOException {
+        input();
+        output();
+    }
 
-    static int[] A;
+    private static int n;
+    private static int[] data;
 
-    static int[][] SUM, DP;
-
-    static void input() throws Exception {
+    private static void input() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
+        int t = Integer.parseInt(br.readLine());
 
-        T = Integer.parseInt(br.readLine());
-        while(T > 0) {
-            T -= 1;
+        while(t > 0) {
+            t -= 1;
 
-            K = Integer.parseInt(br.readLine());
-
-            A = new int[K + 1];
-
-            st = new StringTokenizer(br.readLine());
-            for(int i = 1; i <= K; i++) {
-                A[i] = Integer.parseInt(st.nextToken());
+            n = Integer.parseInt(br.readLine());
+            data = new int[n + 1];
+            StringTokenizer st = new StringTokenizer(br.readLine());
+            for(int i = 1; i <= n; i++) {
+                data[i] = Integer.parseInt(st.nextToken());
             }
-
-            SUM = new int[K + 1][K + 1];
-            DP = new int[K + 1][K + 1];
 
             pro();
         }
     }
 
-    static void preprocess() { // i ~ j 까지의 합을 미리 구함
-        for(int i = 1; i <= K; i++) {
-            for(int j = i; j <= K; j++) {
-                SUM[i][j] = SUM[i][j - 1] + A[j]; // 실수
+    private static void pro() {
+        int[][] acc = new int[n + 1][n + 1];
+        for(int i = 1; i <= n; i++) {
+            acc[i][i] = data[i];
+        }
+
+        for(int i = 1; i < n; i++) {
+            for(int j = i + 1; j <= n; j++) {
+                acc[i][j] = acc[i][j - 1] + data[j];
             }
         }
-    }
 
-    static void pro() {
-        preprocess();
+        int[][] dp = new int[n + 1][n + 1];
+        for(int i = 1; i <= n; i++) {
+            Arrays.fill(dp[i], Integer.MAX_VALUE);
+            dp[i][i] = 0;
+        }
 
-        for(int len = 2; len <= K; len++) { // 구간 길이
-            for(int i = 1; i <= (K - len + 1); i++) { // 시작 지점
-                int j = i - 1 + len; // 종료 지점
-                DP[i][j] = Integer.MAX_VALUE;
+        for(int len = 2; len <= n; len++) {
+            for(int i = 1; i <= n - len + 1; i++) {
+                int j = i + len - 1;
                 for(int k = i; k < j; k++) {
-                    DP[i][j] = Math.min(DP[i][j], DP[i][k] + DP[k + 1][j] + SUM[i][j]);
+                    dp[i][j] = Math.min(dp[i][j], dp[i][k] + dp[k + 1][j] + acc[i][j]);
                 }
             }
         }
 
-        sb.append(DP[1][K]).append("\n");
+        sb.append(dp[1][n]).append("\n");
     }
 
-    public static void main(String[] args) throws Exception {
-        input();
-        System.out.println(sb);
+    private static void output() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
     }
-    
 }
