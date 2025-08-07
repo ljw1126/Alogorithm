@@ -3,12 +3,7 @@ import java.io.*;
 
 public class Main {
     
-    static StringBuilder sb = new StringBuilder();
-    static InputProcessor inputProcessor = new InputProcessor();
-
-    static int MOD = 10007;
-    static int[][] DP;
-    static int N;
+    private static final StringBuilder sb = new StringBuilder();
 
     public static void main(String[] args) throws IOException {
         input();
@@ -16,25 +11,32 @@ public class Main {
         output();
     }
 
-    private static void input() {
-        N = inputProcessor.nextInt();
-        DP = new int[N + 1][10];
-        Arrays.fill(DP[1], 1); // 한 자리 경우 1로 초기화
+    private final static int MOD = 10007;
+    private static int n;
+
+    private static void input() throws IOException {
+        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        n = Integer.parseInt(br.readLine());
     }
 
     private static void pro() {
-        for(int i = 2; i <= N; i++) {
-            for(int j = 0; j <= 9; j++) {
-                for(int z = 0; z <= j; z++) {
-                    DP[i][j] += DP[i - 1][z];
-                    DP[i][j] %= MOD;
+        int[][] dp = new int[n + 1][10]; // 0 ~ 9
+        Arrays.fill(dp[1], 1);
+
+        for (int i = 2; i <= n; i++) {
+            for (int j = 0; j < 10; j++) {
+                dp[i][j] += dp[i - 1][j];
+                dp[i][j] %= MOD;
+                for (int k = j + 1; k < 10; k++) {
+                    dp[i][j] += dp[i - 1][k];
+                    dp[i][j] %= MOD;
                 }
             }
         }
 
         int result = 0;
-        for(int i = 0; i <= 9; i++) {
-            result += DP[N][i];
+        for (int i = 0; i < 10; i++) {
+            result += dp[n][i];
             result %= MOD;
         }
 
@@ -46,47 +48,6 @@ public class Main {
         bw.write(sb.toString());
         bw.flush();
         bw.close();
-    }
-
-    private static class InputProcessor {
-        BufferedReader br;
-        StringTokenizer st;
-
-        public InputProcessor() {
-            this.br = new BufferedReader(new InputStreamReader(System.in));
-        }
-
-        public String next() {
-            while(st == null || !st.hasMoreElements()) {
-                try {
-                    st = new StringTokenizer(br.readLine());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-
-            return st.nextToken();
-        }
-
-        public String nextLine() {
-            String input = "";
-            try {
-                input = br.readLine();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-
-            return input;
-        }
-
-        public int nextInt() {
-            return Integer.parseInt(next());
-        }
-
-        public long nextLong() {
-            return Long.parseLong(next());
-        }
-
     }
     
 }
