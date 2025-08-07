@@ -3,40 +3,50 @@ import java.io.*;
 
 public class Main {
     
-    static int N;
+    private static final StringBuilder sb = new StringBuilder();
 
-    static int[] DP, DATA;
+    public static void main(String[] args) throws IOException {
+        input();
+        pro();
+        output();
+    }
 
+    private static int n;
+    private static int[] liquid;
 
-    static void input() throws Exception {
+    private static void input() throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
-        N = Integer.parseInt(br.readLine());
-        DATA = new int[N + 1];
-        for(int i = 1; i <= N; i++) {
-            DATA[i] = Integer.parseInt(br.readLine());
+        n = Integer.parseInt(br.readLine());
+        liquid = new int[n + 1];
+        for (int i = 1; i <= n; i++) {
+            liquid[i] = Integer.parseInt(br.readLine());
         }
 
-        DP = new int[N + 1];
     }
 
-     static void executeBottomUp() {
-        DP[1] = DATA[1];
-
-        if(N >= 2) {
-            DP[2] = DATA[1] + DATA[2];
+    private static void pro() {
+        int[] dp = new int[n + 1];
+        dp[1] = liquid[1];
+        if (n >= 2) {
+            dp[2] = liquid[1] + liquid[2];
         }
 
-        for(int i = 3; i <= N; i++) {
-            DP[i] = Math.max(Math.max(DATA[i - 1] + DP[i - 3], DP[i - 2]) + DATA[i], DP[i - 1]);
+        for (int i = 3; i <= n; i++) {
+            dp[i] = dp[i - 1]; // 마시지 않는다
+
+            int drunk = Math.max(liquid[i - 1] + dp[i - 3], dp[i - 2]) + liquid[i];
+            dp[i] = Math.max(dp[i], drunk);
         }
 
-        System.out.println(DP[N]);
+        sb.append(dp[n]);
     }
 
-    public static void main(String[] args) throws Exception {
-        input();
-        executeBottomUp();
+    private static void output() throws IOException {
+        BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
+        bw.write(sb.toString());
+        bw.flush();
+        bw.close();
     }
     
 }
